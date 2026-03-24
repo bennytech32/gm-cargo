@@ -5,22 +5,31 @@ export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
-    // Tunatafuta mtumiaji kwa kutumia Simu (phone)
-    // Kama kwenye schema yako unatumia 'email' badala ya 'username', badilisha hapa chini
+    // Tunatafuta mtumiaji kwa jina (name) au simu (phone)
     const user = await prisma.user.findFirst({
       where: {
-        phone: username // Hapa 'username' ni kile alichotype admin (simu yake)
+        OR: [
+          { phone: username },
+          { name: username }
+        ]
       }
     });
 
     if (!user || user.password !== password) {
-      return NextResponse.json({ error: "Taarifa sio sahihi." }, { status: 401 });
+      return NextResponse.json({ error: "Taarifa za kuingia sio sahihi." }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true, user: { id: user.id, phone: user.phone } });
+    if (!user.isActive) {
+      return NextResponse.json({ error: "Akaunti hii imezimwa." }, { status: 403 });
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      user: { id: user.id, name: user.name, role: user.role } 
+    });
 
   } catch (error: any) {
-    console.error("Database Error:", error);
-    return NextResponse.json({ error: "Kosa la kimtandao. Jaribu tena." }, { status: 500 });
+    console.error("Login Error:", error);
+    return NextResponse.json({ error: "Kosa la kimtandao. Database haipatikani." }, { status: 500 });
   }
 }
