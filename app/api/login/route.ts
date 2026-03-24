@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Inatumia daraja la kudumu
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
-    // Tunatafuta admin kwa namba ya simu/username
+    // Tunatafuta mtumiaji kwa kutumia Simu (phone)
+    // Kama kwenye schema yako unatumia 'email' badala ya 'username', badilisha hapa chini
     const user = await prisma.user.findFirst({
       where: {
-        OR: [
-          { username: username },
-          { phone: username }
-        ]
+        phone: username // Hapa 'username' ni kile alichotype admin (simu yake)
       }
     });
 
@@ -19,11 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Taarifa sio sahihi." }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true, user: { id: user.id, username: user.username } });
+    return NextResponse.json({ success: true, user: { id: user.id, phone: user.phone } });
 
   } catch (error: any) {
     console.error("Database Error:", error);
-    // Hii ndio inakuletea lile neno "Kosa la kimtandao"
-    return NextResponse.json({ error: "Kosa la kimtandao. Database haionekani." }, { status: 500 });
+    return NextResponse.json({ error: "Kosa la kimtandao. Jaribu tena." }, { status: 500 });
   }
 }
