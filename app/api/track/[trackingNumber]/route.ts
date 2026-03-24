@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ trac
     });
     
     if (!waybill) {
-      return NextResponse.json({ error: "Mzigo haujapatikana. Hakikisha namba ni sahihi (Mf. GMC-123456)." }, { status: 404 });
+      return NextResponse.json({ error: "Mzigo haujapatikana." }, { status: 404 });
     }
     
     return NextResponse.json(waybill);
