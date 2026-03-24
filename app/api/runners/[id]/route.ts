@@ -3,10 +3,13 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+// Tumeongeza Promise na await kwenye params
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params; // <--- UCHAWI MPYA UPO HAPA
+    
     const waybills = await prisma.waybill.findMany({
-      where: { registeredById: params.id }
+      where: { registeredById: resolvedParams.id }
     });
     
     const totalWaybills = waybills.length;
