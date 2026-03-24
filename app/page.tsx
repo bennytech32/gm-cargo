@@ -424,4 +424,4 @@ export default function LandingPage() {
       </footer>
     </div>
   );
-}
+}// Mzigo mpya wa Vercel
