@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  RUNNER
+}
+
+enum WaybillStatus {
+  RECEIVED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String    @unique
+  password  String
+  role      Role      @default(RUNNER)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  waybills  Waybill[]
+}
+
+model Waybill {
+  id              String        @id @default(uuid())
+  trackingNumber  String        @unique
+  senderName      String
+  senderPhone     String
+  receiverName    String
+  receiverPhone   String
+  destination     String
+  description     String?
+  weight          Float?
+  shippingCost    Float?
+  cargoValue      Float?        // Injected: Thamani ya mzigo
+  status          WaybillStatus @default(RECEIVED)
+  registeredBy    User          @relation(fields: [registeredById], references: [id])
+  registeredById  String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
