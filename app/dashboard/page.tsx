@@ -30,6 +30,7 @@ const dict: any = {
     btnPrintMan: "Print Manifest",
     sTitle: "System Settings", sSub: "Modify receipt terms and other configurations.",
     sTerms: "Receipt Terms & Conditions", sTermsDesc: "These terms will appear at the bottom of printed and WhatsApp receipts.",
+    sPhones: "Company Phone Numbers", sTin: "TIN Number", sWeb: "Website", // MAPYA KWA AJILI YA RISITI
     btnSave: "Save Settings"
   },
   sw: {
@@ -57,6 +58,7 @@ const dict: any = {
     btnPrintMan: "Printi Manifest",
     sTitle: "Mipangilio ya Mfumo", sSub: "Badilisha masharti yanayotokea chini ya risiti za wateja.",
     sTerms: "Masharti ya Risiti", sTermsDesc: "Maneno haya yataonekana mwishoni mwa kila risiti.",
+    sPhones: "Namba za Simu za Ofisi", sTin: "Namba ya TIN", sWeb: "Tovuti (Website)", // MAPYA KWA AJILI YA RISITI
     btnSave: "Hifadhi Mipangilio"
   }
 };
@@ -94,7 +96,12 @@ export default function Dashboard() {
   const [userForm, setUserForm] = useState({ name: "", phone: "", password: "", role: "RUNNER" });
   const [agentForm, setAgentForm] = useState({ name: "", region: "", phone: "", address: "" });
   const [manifestForm, setManifestForm] = useState({ driver: "", vehicle: "", route: "" });
+  
+  // --- TAARIFA MPYA ZA RISITI ---
   const [receiptTerms, setReceiptTerms] = useState("1. Goods lost will be compensated according to declared value.\n2. Collect within 7 days.\n3. Keep this receipt.");
+  const [companyPhones, setCompanyPhones] = useState("0700 000 000");
+  const [companyTin, setCompanyTin] = useState("123-456-789");
+  const [companyWebsite, setCompanyWebsite] = useState("www.gm-cargo.co.tz");
 
   // --- INITIAL LOAD ---
   useEffect(() => {
@@ -106,8 +113,16 @@ export default function Dashboard() {
       setAdminName(localStorage.getItem("admin_name") || "Admin");
       fetchWaybills();
       fetchUsers();
+      
+      // Kuvuta mipangilio ya risiti
       const savedTerms = localStorage.getItem("receipt_terms");
       if (savedTerms) setReceiptTerms(savedTerms);
+      const savedPhones = localStorage.getItem("company_phones");
+      if (savedPhones) setCompanyPhones(savedPhones);
+      const savedTin = localStorage.getItem("company_tin");
+      if (savedTin) setCompanyTin(savedTin);
+      const savedWeb = localStorage.getItem("company_website");
+      if (savedWeb) setCompanyWebsite(savedWeb);
     }
   }, []);
 
@@ -133,19 +148,13 @@ export default function Dashboard() {
     if (res.ok) fetchWaybills();
   };
 
-  // Njia mpya ya kufuta Mzigo (Delete Waybill)
   const handleDeleteWaybill = async (id: string) => {
     if (!window.confirm(t.confirmDel)) return;
     try {
       const res = await fetch(`/api/waybills/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchWaybills(); // Refresh the list
-      } else {
-        alert("Failed to delete the package.");
-      }
-    } catch (error) {
-      alert("Network Error.");
-    }
+      if (res.ok) fetchWaybills();
+      else alert("Failed to delete the package.");
+    } catch (error) { alert("Network Error."); }
   };
 
   const handleLogout = () => {
@@ -157,8 +166,7 @@ export default function Dashboard() {
     setWaybills(prev => prev.map(w => w.id === waybillId ? { ...w, [field]: value } : w));
   };
 
-  // --- PRINT FUNCTIONS ---
-  // HAPA TUMEBADILISHA CSS IENDANE NA THERMAL PRINTER ZA 58MM NA 80MM
+  // --- PRINT FUNCTIONS (ZILIZOBORESHWA NA TAARIFA ZA OFISI) ---
   const handlePrintReceipt = (mzigo: any) => {
     const runnerName = getRunnerName(mzigo.registeredById);
     const printWindow = window.open('', '_blank');
@@ -166,13 +174,40 @@ export default function Dashboard() {
     const htmlContent = `<html><head><title>Risiti - ${mzigo.trackingNumber}</title><style>
       @page { margin: 0; size: 58mm auto; }
       body { font-family: 'Courier New', monospace; width: 58mm; margin: 0; padding: 2mm; color: #000; font-size: 12px; line-height: 1.2; box-sizing: border-box; }
-      h2 { text-align: center; margin: 0 0 5px 0; font-size: 16px; }
+      h2 { text-align: center; margin: 0 0 5px 0; font-size: 18px; }
       .center { text-align: center; }
       .line { border-top: 1px dashed #000; margin: 5px 0; }
       .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
       .bold { font-weight: bold; }
       .terms { font-size: 9px; margin-top: 10px; text-align: center; color: #000; }
-    </style></head><body><h2>GM CARGO</h2><div class="center bold">Mzigo Traking Risiti</div><div class="line"></div><div class="row"><span>Tracking:</span> <span class="bold">${mzigo.trackingNumber}</span></div><div class="row"><span>Tarehe:</span> <span>${new Date(mzigo.createdAt).toLocaleDateString()}</span></div><div class="line"></div><div class="row"><span>Mtumaji:</span> <span class="bold">${mzigo.senderName}</span></div><div class="row"><span>Simu:</span> <span>${mzigo.senderPhone}</span></div><div class="line"></div><div class="row"><span>Mpokeaji:</span> <span class="bold">${mzigo.receiverName}</span></div><div class="row"><span>Simu:</span> <span>${mzigo.receiverPhone}</span></div><div class="row"><span>Mkoa:</span> <span class="bold">${mzigo.destination}</span></div><div class="line"></div><div class="row"><span>Nauli:</span> <span class="bold">TZS ${mzigo.shippingCost?.toLocaleString() || 0}</span></div><div class="row"><span>Thamani:</span> <span>TZS ${mzigo.cargoValue?.toLocaleString() || 0}</span></div><div class="line"></div><div class="center" style="font-size:10px;margin-top:5px;">Imehudumiwa na: ${runnerName}</div><div class="terms">${receiptTerms.replace(/\n/g, '<br/>')}</div><div class="center bold" style="margin-top:10px;">Asante kwa kuchagua GM Cargo</div><script>window.onload=function(){window.print();window.close();}</script></body></html>`;
+      .office-info { font-size: 10px; text-align: center; margin-bottom: 5px; }
+    </style></head><body>
+      <h2>GM CARGO</h2>
+      <div class="office-info">
+        <div>TEL: ${companyPhones}</div>
+        <div>TIN: ${companyTin}</div>
+        <div>${companyWebsite}</div>
+      </div>
+      <div class="line"></div>
+      <div class="center bold" style="margin-bottom: 5px;">Mzigo Traking Risiti</div>
+      <div class="row"><span>Tracking:</span> <span class="bold">${mzigo.trackingNumber}</span></div>
+      <div class="row"><span>Tarehe:</span> <span>${new Date(mzigo.createdAt).toLocaleDateString()}</span></div>
+      <div class="line"></div>
+      <div class="row"><span>Mtumaji:</span> <span class="bold">${mzigo.senderName}</span></div>
+      <div class="row"><span>Simu:</span> <span>${mzigo.senderPhone}</span></div>
+      <div class="line"></div>
+      <div class="row"><span>Mpokeaji:</span> <span class="bold">${mzigo.receiverName}</span></div>
+      <div class="row"><span>Simu:</span> <span>${mzigo.receiverPhone}</span></div>
+      <div class="row"><span>Mkoa:</span> <span class="bold">${mzigo.destination}</span></div>
+      <div class="line"></div>
+      <div class="row"><span>Nauli:</span> <span class="bold">TZS ${mzigo.shippingCost?.toLocaleString() || 0}</span></div>
+      <div class="row"><span>Thamani:</span> <span>TZS ${mzigo.cargoValue?.toLocaleString() || 0}</span></div>
+      <div class="line"></div>
+      <div class="center" style="font-size:10px;margin-top:5px;">Imehudumiwa na: ${runnerName}</div>
+      <div class="terms">${receiptTerms.replace(/\n/g, '<br/>')}</div>
+      <div class="center bold" style="margin-top:10px;">Asante kwa kuchagua GM Cargo</div>
+      <script>window.onload=function(){window.print();window.close();}</script>
+    </body></html>`;
     printWindow.document.write(htmlContent); printWindow.document.close();
   };
 
@@ -196,43 +231,30 @@ export default function Dashboard() {
     try {
       const trackingNumber = "GM-" + Math.floor(100000 + Math.random() * 900000);
       const payload = {
-        ...cargoForm,
-        trackingNumber: trackingNumber,
-        status: "RECEIVED", 
-        registeredById: adminId,
-        shippingCost: Number(cargoForm.shippingCost) || 0,
-        cargoValue: Number(cargoForm.cargoValue) || 0
+        ...cargoForm, trackingNumber, status: "RECEIVED", registeredById: adminId,
+        shippingCost: Number(cargoForm.shippingCost) || 0, cargoValue: Number(cargoForm.cargoValue) || 0
       };
 
       const res = await fetch("/api/waybills", {
-        method: "POST", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         alert("Safi! Mzigo umesajiliwa kikamilifu. ✅"); 
         setCargoForm({ senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "" });
-        fetchWaybills(); 
-        setActiveTab("dashboard");
+        fetchWaybills(); setActiveTab("dashboard");
       } else {
         const err = await res.json();
         alert("Imeshindwa kusajili: " + (err.error || "Angalia kama umeweka taarifa zote."));
       }
-    } catch (error) { 
-      alert("Kosa la kimtandao. API haipatikani!"); 
-    } finally { 
-      setActionLoading(false); 
-    }
+    } catch (error) { alert("Kosa la kimtandao. API haipatikani!"); } finally { setActionLoading(false); }
   };
 
   const handleAddUser = async (e: any) => {
     e.preventDefault(); setActionLoading(true);
     try {
       const res = await fetch("/api/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(userForm) });
-      if (res.ok) {
-        alert("User Added!"); setUserForm({ name: "", phone: "", password: "", role: "RUNNER" }); fetchUsers();
-      }
+      if (res.ok) { alert("User Added!"); setUserForm({ name: "", phone: "", password: "", role: "RUNNER" }); fetchUsers(); }
     } catch (error) { alert("Network Error"); } finally { setActionLoading(false); }
   };
 
@@ -245,7 +267,12 @@ export default function Dashboard() {
   };
 
   const handleSaveSettings = (e: any) => {
-    e.preventDefault(); localStorage.setItem("receipt_terms", receiptTerms); alert("Settings Saved!");
+    e.preventDefault(); 
+    localStorage.setItem("receipt_terms", receiptTerms);
+    localStorage.setItem("company_phones", companyPhones);
+    localStorage.setItem("company_tin", companyTin);
+    localStorage.setItem("company_website", companyWebsite);
+    alert("Settings Saved!");
   };
 
   // --- ANALYTICS & FILTERS ---
@@ -260,10 +287,7 @@ export default function Dashboard() {
     <div className="flex h-screen bg-gray-50 overflow-hidden w-full font-sans selection:bg-blue-200">
       
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setIsSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsSidebarOpen(false)} />
       )}
 
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
@@ -406,11 +430,9 @@ export default function Dashboard() {
                               <option value="CANCELLED">❌ CANCELLED</option>
                             </select>
                             <div className="flex gap-2">
-                              {/* KITUFE CHA PRINT */}
                               <button onClick={() => handlePrintReceipt(mzigo)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 p-2 rounded-lg transition-colors flex items-center justify-center" title={t.btnPrint}>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                               </button>
-                              {/* KITUFE KIPYA CHA DELETE */}
                               <button onClick={() => handleDeleteWaybill(mzigo.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2 rounded-lg transition-colors flex items-center justify-center" title={t.btnDel}>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                               </button>
@@ -683,25 +705,45 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* TAB 6: MIPANGILIO (Settings) */}
+          {/* TAB 6: MIPANGILIO (Settings) - IMEBORESHWA */}
           {activeTab === "settings" && (
-            <div className="max-w-3xl mx-auto animate-fade-in-up">
+            <div className="max-w-4xl mx-auto animate-fade-in-up">
               <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">{t.sTitle}</h1>
               <p className="text-sm md:text-base text-slate-500 mb-8">{t.sSub}</p>
 
               <form onSubmit={handleSaveSettings} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <label className="block text-sm font-bold text-slate-700 mb-4">
+                
+                {/* TAARIFA ZA KAMPUNI KWENYE RISITI */}
+                <h3 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Taarifa za Kichwa cha Risiti (Receipt Header)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">{t.sPhones}</label>
+                    <input type="text" value={companyPhones} onChange={(e) => setCompanyPhones(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 outline-none focus:border-blue-500" placeholder="Mf. 0700 000 000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">{t.sTin}</label>
+                    <input type="text" value={companyTin} onChange={(e) => setCompanyTin(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 outline-none focus:border-blue-500" placeholder="Mf. 123-456-789" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">{t.sWeb}</label>
+                    <input type="text" value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 outline-none focus:border-blue-500" placeholder="Mf. www.gm-cargo.co.tz" />
+                  </div>
+                </div>
+
+                {/* MASHARTI YA RISITI */}
+                <h3 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Masharti ya Chini (Receipt Footer)</h3>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   {t.sTerms}
                 </label>
                 <textarea 
-                  rows={6}
+                  rows={4}
                   value={receiptTerms}
                   onChange={(e) => setReceiptTerms(e.target.value)}
                   className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 ></textarea>
-                <p className="text-xs text-slate-400 mt-2 mb-6">{t.sTermsDesc}</p>
+                <p className="text-xs text-slate-400 mt-2 mb-8">{t.sTermsDesc}</p>
                 
-                <button type="submit" className="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">
+                <button type="submit" className="w-full md:w-auto bg-blue-600 text-white px-10 py-3.5 rounded-xl font-black hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
                   {t.btnSave}
                 </button>
               </form>
