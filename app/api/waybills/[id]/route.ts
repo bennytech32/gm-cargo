@@ -1,29 +1,30 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-// Kuvuta mizigo yote
-export async function GET() {
+// Hii inabadilisha Status ya Mzigo
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
   try {
-    const waybills = await prisma.waybill.findMany({
-      orderBy: { createdAt: 'desc' }
+    const params = await props.params;
+    const { status } = await request.json();
+    const updated = await prisma.waybill.update({
+      where: { id: params.id },
+      data: { status },
     });
-    return NextResponse.json(waybills);
+    return NextResponse.json(updated);
   } catch (error) {
-    return NextResponse.json({ error: "Imeshindwa kuvuta data" }, { status: 500 });
+    return NextResponse.json({ error: "Imeshindwa kubadili hali" }, { status: 500 });
   }
 }
 
-// Kutengeneza mzigo mpya
-export async function POST(request: Request) {
+// HII NDIO MPYA YA KUFUTA MZIGO
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
   try {
-    const body = await request.json();
-    const newWaybill = await prisma.waybill.create({
-      data: body
+    const params = await props.params;
+    await prisma.waybill.delete({
+      where: { id: params.id }
     });
-    return NextResponse.json(newWaybill);
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Imeshindwa kutengeneza mzigo" }, { status: 500 });
+    return NextResponse.json({ error: "Imeshindwa kufuta mzigo" }, { status: 500 });
   }
 }

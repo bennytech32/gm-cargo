@@ -13,7 +13,7 @@ const dict: any = {
     dSearch: "Search Tracking / Phone...", dRev: "Total Revenue", dVal: "Stored Cargo Value", 
     dTot: "Total Packages", dOnline: "Runners Online",
     thTrack: "Tracking & Runner", thNames: "Sender & Receiver", thDest: "Destination & Assignment", thCost: "Cost / Value", thStatus: "Status & Action",
-    btnPrint: "Print", regBy: "By:", dAssignMan: "Assign Manifest", dAssignAgt: "Assign Agent",
+    btnPrint: "Print", btnDel: "Delete", confirmDel: "Are you sure you want to delete this package?", regBy: "By:", dAssignMan: "Assign Manifest", dAssignAgt: "Assign Agent",
     rTitle: "Register New Cargo", rSub: "Enter details for the new package received at the office.",
     rSendN: "Sender Name", rSendP: "Sender Phone", rRecN: "Receiver Name", rRecP: "Receiver Phone",
     rDest: "Destination Region", rDesc: "Package Description", rCost: "Shipping Cost (TZS)", rVal: "Cargo Value (TZS)",
@@ -40,7 +40,7 @@ const dict: any = {
     dSearch: "Tafuta Tracking / Simu...", dRev: "Mapato (Nauli)", dVal: "Thamani ya Mizigo", 
     dTot: "Jumla ya Mizigo", dOnline: "Runners Online",
     thTrack: "Tracking & Runner", thNames: "Mtumaji & Mpokeaji", thDest: "Mkoa na Upangaji", thCost: "Nauli / Thamani", thStatus: "Hali na Risiti",
-    btnPrint: "Printi", regBy: "Na:", dAssignMan: "Pangia Manifest", dAssignAgt: "Pangia Wakala",
+    btnPrint: "Printi", btnDel: "Futa", confirmDel: "Je, una uhakika unataka kufuta mzigo huu moja kwa moja?", regBy: "Na:", dAssignMan: "Pangia Manifest", dAssignAgt: "Pangia Wakala",
     rTitle: "Sajili Mzigo Mpya", rSub: "Ingiza taarifa za mzigo unaopokelewa ofisini.",
     rSendN: "Jina la Mtumaji", rSendP: "Simu ya Mtumaji", rRecN: "Jina la Mpokeaji", rRecP: "Simu ya Mpokeaji",
     rDest: "Mkoa Unapoenda", rDesc: "Maelezo ya Mzigo", rCost: "Nauli (TZS)", rVal: "Thamani (TZS)",
@@ -68,7 +68,6 @@ const IconUsers = () => <svg className="w-5 h-5" fill="none" stroke="currentColo
 const IconAgents = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>;
 const IconManifest = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>;
 const IconSettings = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>;
-// Mobile Icons
 const IconMenu = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>;
 const IconClose = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>;
 
@@ -97,7 +96,7 @@ export default function Dashboard() {
   const [manifestForm, setManifestForm] = useState({ driver: "", vehicle: "", route: "" });
   const [receiptTerms, setReceiptTerms] = useState("1. Goods lost will be compensated according to declared value.\n2. Collect within 7 days.\n3. Keep this receipt.");
 
-  // --- KUFULI & INITIAL LOAD ---
+  // --- INITIAL LOAD ---
   useEffect(() => {
     const id = localStorage.getItem("admin_id");
     if (!id) {
@@ -134,6 +133,21 @@ export default function Dashboard() {
     if (res.ok) fetchWaybills();
   };
 
+  // Njia mpya ya kufuta Mzigo (Delete Waybill)
+  const handleDeleteWaybill = async (id: string) => {
+    if (!window.confirm(t.confirmDel)) return;
+    try {
+      const res = await fetch(`/api/waybills/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchWaybills(); // Refresh the list
+      } else {
+        alert("Failed to delete the package.");
+      }
+    } catch (error) {
+      alert("Network Error.");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     router.push("/admin");
@@ -144,11 +158,21 @@ export default function Dashboard() {
   };
 
   // --- PRINT FUNCTIONS ---
+  // HAPA TUMEBADILISHA CSS IENDANE NA THERMAL PRINTER ZA 58MM NA 80MM
   const handlePrintReceipt = (mzigo: any) => {
     const runnerName = getRunnerName(mzigo.registeredById);
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    const htmlContent = `<html><head><title>Risiti - ${mzigo.trackingNumber}</title><style>body{font-family:monospace;padding:20px;max-width:350px;margin:0 auto;color:#000}h2{text-align:center;margin:0 0 10px 0;font-size:24px}.center{text-align:center}.line{border-top:1px dashed #000;margin:15px 0}.row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}.bold{font-weight:bold}.terms{font-size:11px;margin-top:20px;text-align:center;color:#333}</style></head><body><h2>GM CARGO</h2><div class="center bold">Mzigo Traking Risiti</div><div class="line"></div><div class="row"><span>Tracking No:</span> <span class="bold">${mzigo.trackingNumber}</span></div><div class="row"><span>Tarehe:</span> <span>${new Date(mzigo.createdAt).toLocaleDateString()}</span></div><div class="line"></div><div class="row"><span>Mtumaji:</span> <span class="bold">${mzigo.senderName}</span></div><div class="row"><span>Simu:</span> <span>${mzigo.senderPhone}</span></div><div class="line"></div><div class="row"><span>Mpokeaji:</span> <span class="bold">${mzigo.receiverName}</span></div><div class="row"><span>Simu:</span> <span>${mzigo.receiverPhone}</span></div><div class="row"><span>Mkoa Unapoenda:</span> <span class="bold">${mzigo.destination}</span></div><div class="line"></div><div class="row"><span>Nauli:</span> <span class="bold">TZS ${mzigo.shippingCost?.toLocaleString() || 0}</span></div><div class="row"><span>Thamani:</span> <span>TZS ${mzigo.cargoValue?.toLocaleString() || 0}</span></div><div class="line"></div><div class="center" style="font-size:12px;margin-top:10px;">Imehudumiwa na: ${runnerName}</div><div class="terms">${receiptTerms.replace(/\n/g, '<br/>')}</div><div class="center bold" style="margin-top:15px;">Asante kwa kuchagua GM Cargo</div><script>window.onload=function(){window.print();window.close();}</script></body></html>`;
+    const htmlContent = `<html><head><title>Risiti - ${mzigo.trackingNumber}</title><style>
+      @page { margin: 0; size: 58mm auto; }
+      body { font-family: 'Courier New', monospace; width: 58mm; margin: 0; padding: 2mm; color: #000; font-size: 12px; line-height: 1.2; box-sizing: border-box; }
+      h2 { text-align: center; margin: 0 0 5px 0; font-size: 16px; }
+      .center { text-align: center; }
+      .line { border-top: 1px dashed #000; margin: 5px 0; }
+      .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+      .bold { font-weight: bold; }
+      .terms { font-size: 9px; margin-top: 10px; text-align: center; color: #000; }
+    </style></head><body><h2>GM CARGO</h2><div class="center bold">Mzigo Traking Risiti</div><div class="line"></div><div class="row"><span>Tracking:</span> <span class="bold">${mzigo.trackingNumber}</span></div><div class="row"><span>Tarehe:</span> <span>${new Date(mzigo.createdAt).toLocaleDateString()}</span></div><div class="line"></div><div class="row"><span>Mtumaji:</span> <span class="bold">${mzigo.senderName}</span></div><div class="row"><span>Simu:</span> <span>${mzigo.senderPhone}</span></div><div class="line"></div><div class="row"><span>Mpokeaji:</span> <span class="bold">${mzigo.receiverName}</span></div><div class="row"><span>Simu:</span> <span>${mzigo.receiverPhone}</span></div><div class="row"><span>Mkoa:</span> <span class="bold">${mzigo.destination}</span></div><div class="line"></div><div class="row"><span>Nauli:</span> <span class="bold">TZS ${mzigo.shippingCost?.toLocaleString() || 0}</span></div><div class="row"><span>Thamani:</span> <span>TZS ${mzigo.cargoValue?.toLocaleString() || 0}</span></div><div class="line"></div><div class="center" style="font-size:10px;margin-top:5px;">Imehudumiwa na: ${runnerName}</div><div class="terms">${receiptTerms.replace(/\n/g, '<br/>')}</div><div class="center bold" style="margin-top:10px;">Asante kwa kuchagua GM Cargo</div><script>window.onload=function(){window.print();window.close();}</script></body></html>`;
     printWindow.document.write(htmlContent); printWindow.document.close();
   };
 
@@ -165,19 +189,16 @@ export default function Dashboard() {
     return user ? user.name : "Ofisini / Admin";
   };
 
-  // --- FORM HANDLERS (THE FIX IS HERE) ---
+  // --- FORM HANDLERS ---
   const handleRegisterCargo = async (e: any) => {
     e.preventDefault(); 
     setActionLoading(true);
     try {
-      // 1. Kutengeneza Tracking Number automatically
       const trackingNumber = "GM-" + Math.floor(100000 + Math.random() * 900000);
-
-      // 2. Kufunga mzigo kwa usahihi kwa ajili ya Prisma
       const payload = {
         ...cargoForm,
         trackingNumber: trackingNumber,
-        status: "RECEIVED", // Lazima iwe na status hii mwanzo
+        status: "RECEIVED", 
         registeredById: adminId,
         shippingCost: Number(cargoForm.shippingCost) || 0,
         cargoValue: Number(cargoForm.cargoValue) || 0
@@ -238,7 +259,6 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden w-full font-sans selection:bg-blue-200">
       
-      {/* 1. KIOO CHA GIZA (Mobile Overlay) */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm transition-opacity"
@@ -246,7 +266,6 @@ export default function Dashboard() {
         />
       )}
 
-      {/* 2. SIDEBAR YAKO IMENYOOSHWA */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 border-b border-slate-800 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
@@ -284,10 +303,8 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         
-        {/* 3. HEADER YA SIMU PEKEE */}
         <header className="flex items-center justify-between px-4 py-4 bg-white border-b md:hidden shadow-sm shrink-0 z-30">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-black text-white text-sm">GM</div>
@@ -298,7 +315,6 @@ export default function Dashboard() {
           </button>
         </header>
 
-        {/* ENEO LA KURASA (Scrollable) */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50">
           
           {/* TAB 1: DASHBOARD */}
@@ -382,16 +398,23 @@ export default function Dashboard() {
                           <div className="text-xs font-bold text-green-600">Val: TZS {mzigo.cargoValue?.toLocaleString()}</div>
                         </td>
                         <td className="p-4">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col gap-2">
                             <select value={mzigo.status} onChange={(e) => updateStatus(mzigo.id, e.target.value)} className="text-xs font-bold bg-white border border-slate-200 rounded-lg p-2 text-slate-700 outline-none cursor-pointer focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                               <option value="RECEIVED">📦 RECEIVED</option>
                               <option value="IN_TRANSIT">🚚 IN_TRANSIT</option>
                               <option value="DELIVERED">✅ DELIVERED</option>
                               <option value="CANCELLED">❌ CANCELLED</option>
                             </select>
-                            <button onClick={() => handlePrintReceipt(mzigo)} className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2 rounded-lg transition-colors flex items-center justify-center" title={t.btnPrint}>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            </button>
+                            <div className="flex gap-2">
+                              {/* KITUFE CHA PRINT */}
+                              <button onClick={() => handlePrintReceipt(mzigo)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 p-2 rounded-lg transition-colors flex items-center justify-center" title={t.btnPrint}>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                              </button>
+                              {/* KITUFE KIPYA CHA DELETE */}
+                              <button onClick={() => handleDeleteWaybill(mzigo.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-2 rounded-lg transition-colors flex items-center justify-center" title={t.btnDel}>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                              </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
