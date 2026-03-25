@@ -30,7 +30,7 @@ const dict: any = {
     btnPrintMan: "Print Manifest",
     sTitle: "System Settings", sSub: "Modify receipt terms and other configurations.",
     sTerms: "Receipt Terms & Conditions", sTermsDesc: "These terms will appear at the bottom of printed and WhatsApp receipts.",
-    sPhones: "Company Phone Numbers", sTin: "TIN Number", sWeb: "Website", // MAPYA KWA AJILI YA RISITI
+    sPhones: "Company Phone Numbers", sTin: "TIN Number", sWeb: "Website", 
     btnSave: "Save Settings"
   },
   sw: {
@@ -58,7 +58,7 @@ const dict: any = {
     btnPrintMan: "Printi Manifest",
     sTitle: "Mipangilio ya Mfumo", sSub: "Badilisha masharti yanayotokea chini ya risiti za wateja.",
     sTerms: "Masharti ya Risiti", sTermsDesc: "Maneno haya yataonekana mwishoni mwa kila risiti.",
-    sPhones: "Namba za Simu za Ofisi", sTin: "Namba ya TIN", sWeb: "Tovuti (Website)", // MAPYA KWA AJILI YA RISITI
+    sPhones: "Namba za Simu za Ofisi", sTin: "Namba ya TIN", sWeb: "Tovuti (Website)", 
     btnSave: "Hifadhi Mipangilio"
   }
 };
@@ -98,9 +98,9 @@ export default function Dashboard() {
   const [manifestForm, setManifestForm] = useState({ driver: "", vehicle: "", route: "" });
   
   // --- TAARIFA MPYA ZA RISITI ---
-  const [receiptTerms, setReceiptTerms] = useState("1. Goods lost will be compensated according to declared value.\n2. Collect within 7 days.\n3. Keep this receipt.");
-  const [companyPhones, setCompanyPhones] = useState("0700 000 000");
-  const [companyTin, setCompanyTin] = useState("123-456-789");
+  const [receiptTerms, setReceiptTerms] = useState("- Collect within 4 days\n- No liability without declared value");
+  const [companyPhones, setCompanyPhones] = useState("+255 767 359 115 | +255 624 329 115");
+  const [companyTin, setCompanyTin] = useState("152-356-013");
   const [companyWebsite, setCompanyWebsite] = useState("www.gm-cargo.co.tz");
 
   // --- INITIAL LOAD ---
@@ -114,7 +114,6 @@ export default function Dashboard() {
       fetchWaybills();
       fetchUsers();
       
-      // Kuvuta mipangilio ya risiti
       const savedTerms = localStorage.getItem("receipt_terms");
       if (savedTerms) setReceiptTerms(savedTerms);
       const savedPhones = localStorage.getItem("company_phones");
@@ -166,49 +165,100 @@ export default function Dashboard() {
     setWaybills(prev => prev.map(w => w.id === waybillId ? { ...w, [field]: value } : w));
   };
 
-  // --- PRINT FUNCTIONS (ZILIZOBORESHWA NA TAARIFA ZA OFISI) ---
+  // --- PRINT FUNCTIONS (ZILIZOBORESHWA KUFANANA NA PICHA YA MTEJA) ---
   const handlePrintReceipt = (mzigo: any) => {
     const runnerName = getRunnerName(mzigo.registeredById);
+    
+    // Tafuta taarifa za wakala (Agent) kama yupo
+    const agent = agents.find((a: any) => a.id.toString() === mzigo.agentId);
+    const agentHtml = agent ? `
+      <br>------------------------<br>
+      AGENT (${agent.region.toUpperCase()}):<br>
+      ${agent.phone}<br>
+      ${agent.name}<br>
+    ` : "";
+
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
+
+    // HAPA NDIO MUONEKANO MPYA WENYE QR CODE NA MISTARI
     const htmlContent = `<html><head><title>Risiti - ${mzigo.trackingNumber}</title><style>
       @page { margin: 0; size: 58mm auto; }
-      body { font-family: 'Courier New', monospace; width: 58mm; margin: 0; padding: 2mm; color: #000; font-size: 12px; line-height: 1.2; box-sizing: border-box; }
-      h2 { text-align: center; margin: 0 0 5px 0; font-size: 18px; }
+      body { 
+        font-family: 'Courier New', monospace; 
+        width: 58mm; 
+        margin: 0; 
+        padding: 2mm; 
+        color: #000; 
+        font-size: 11px; 
+        line-height: 1.3; 
+        box-sizing: border-box; 
+      }
       .center { text-align: center; }
-      .line { border-top: 1px dashed #000; margin: 5px 0; }
-      .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+      .left { text-align: left; }
       .bold { font-weight: bold; }
-      .terms { font-size: 9px; margin-top: 10px; text-align: center; color: #000; }
-      .office-info { font-size: 10px; text-align: center; margin-bottom: 5px; }
+      .qr-code { display: block; margin: 10px auto; width: 80px; height: 80px; }
     </style></head><body>
-      <h2>GM CARGO</h2>
-      <div class="office-info">
-        <div>TEL: ${companyPhones}</div>
-        <div>TIN: ${companyTin}</div>
-        <div>${companyWebsite}</div>
+      
+      <div class="center">
+        ========================<br>
+        <span style="font-size: 12px; font-weight: bold;">GM CARGO COMPANY LIMITED</span><br>
+        Reliable • Fast • Secure Logistics<br>
+        ${companyPhones}<br>
+        ${companyWebsite}<br>
+        TIN: ${companyTin}<br>
+        ========================
       </div>
-      <div class="line"></div>
-      <div class="center bold" style="margin-bottom: 5px;">Mzigo Traking Risiti</div>
-      <div class="row"><span>Tracking:</span> <span class="bold">${mzigo.trackingNumber}</span></div>
-      <div class="row"><span>Tarehe:</span> <span>${new Date(mzigo.createdAt).toLocaleDateString()}</span></div>
-      <div class="line"></div>
-      <div class="row"><span>Mtumaji:</span> <span class="bold">${mzigo.senderName}</span></div>
-      <div class="row"><span>Simu:</span> <span>${mzigo.senderPhone}</span></div>
-      <div class="line"></div>
-      <div class="row"><span>Mpokeaji:</span> <span class="bold">${mzigo.receiverName}</span></div>
-      <div class="row"><span>Simu:</span> <span>${mzigo.receiverPhone}</span></div>
-      <div class="row"><span>Mkoa:</span> <span class="bold">${mzigo.destination}</span></div>
-      <div class="line"></div>
-      <div class="row"><span>Nauli:</span> <span class="bold">TZS ${mzigo.shippingCost?.toLocaleString() || 0}</span></div>
-      <div class="row"><span>Thamani:</span> <span>TZS ${mzigo.cargoValue?.toLocaleString() || 0}</span></div>
-      <div class="line"></div>
-      <div class="center" style="font-size:10px;margin-top:5px;">Imehudumiwa na: ${runnerName}</div>
-      <div class="terms">${receiptTerms.replace(/\n/g, '<br/>')}</div>
-      <div class="center bold" style="margin-top:10px;">Asante kwa kuchagua GM Cargo</div>
-      <script>window.onload=function(){window.print();window.close();}</script>
+
+      <div class="left">
+        <br>
+        RECEIPT NO: ${mzigo.trackingNumber}<br>
+        DATE: ${new Date(mzigo.createdAt).toLocaleDateString()}<br>
+        FROM: DAR ES SALAAM<br>
+        TO: ${mzigo.destination.toUpperCase()}<br>
+        
+        <br>------------------------<br>
+        SENDER:<br>
+        ${mzigo.senderName}<br>
+        ${mzigo.senderPhone}<br>
+        
+        <br>------------------------<br>
+        RECEIVER:<br>
+        ${mzigo.receiverName}<br>
+        ${mzigo.receiverPhone}<br>
+        
+        <br>------------------------<br>
+        CARGO DETAILS:<br>
+        Item: ${mzigo.description || 'Mizigo'}<br>
+        Amount: Tsh ${mzigo.shippingCost?.toLocaleString() || 0}<br>
+        
+        ${agentHtml}
+        
+        <br>------------------------<br>
+        TERMS:<br>
+        ${receiptTerms.replace(/\n/g, '<br>')}<br>
+        
+        <br>------------------------<br>
+      </div>
+
+      <div class="center">
+        <img class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${mzigo.trackingNumber}" alt="QR Code" />
+        Served by: ${runnerName}<br>
+        Thank you for choosing GM Cargo<br>
+        ========================
+      </div>
+
+      <script>
+        // Tunasubiri sekunde 1 ili QR code ipate muda wa ku-load kabla ya kuprint
+        setTimeout(() => {
+          window.print();
+          window.close();
+        }, 800);
+      </script>
+
     </body></html>`;
-    printWindow.document.write(htmlContent); printWindow.document.close();
+    printWindow.document.write(htmlContent); 
+    printWindow.document.close();
   };
 
   const handlePrintManifest = (manifest: any) => {
@@ -705,7 +755,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* TAB 6: MIPANGILIO (Settings) - IMEBORESHWA */}
+          {/* TAB 6: MIPANGILIO (Settings) */}
           {activeTab === "settings" && (
             <div className="max-w-4xl mx-auto animate-fade-in-up">
               <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">{t.sTitle}</h1>
@@ -713,7 +763,6 @@ export default function Dashboard() {
 
               <form onSubmit={handleSaveSettings} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
                 
-                {/* TAARIFA ZA KAMPUNI KWENYE RISITI */}
                 <h3 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Taarifa za Kichwa cha Risiti (Receipt Header)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
                   <div>
@@ -730,7 +779,6 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* MASHARTI YA RISITI */}
                 <h3 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Masharti ya Chini (Receipt Footer)</h3>
                 <label className="block text-sm font-bold text-slate-700 mb-2">
                   {t.sTerms}
