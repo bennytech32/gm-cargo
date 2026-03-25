@@ -72,14 +72,13 @@ const IconSettings = () => <svg className="w-5 h-5" fill="none" stroke="currentC
 const IconMenu = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>;
 const IconClose = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>;
 
-
 export default function Dashboard() {
   const router = useRouter();
   const [lang, setLang] = useState("en"); 
   const t = dict[lang];
   
   // --- STATES ---
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // STATE MPYA YA MOBILE
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [activeTab, setActiveTab] = useState("dashboard"); 
   const [waybills, setWaybills] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]); 
@@ -144,7 +143,7 @@ export default function Dashboard() {
     setWaybills(prev => prev.map(w => w.id === waybillId ? { ...w, [field]: value } : w));
   };
 
-  // --- PRINT FUNCTIONS (Zinabaki kama zilivyo) ---
+  // --- PRINT FUNCTIONS ---
   const handlePrintReceipt = (mzigo: any) => {
     const runnerName = getRunnerName(mzigo.registeredById);
     const printWindow = window.open('', '_blank');
@@ -166,19 +165,44 @@ export default function Dashboard() {
     return user ? user.name : "Ofisini / Admin";
   };
 
-  // --- FORM HANDLERS (Zinabaki) ---
+  // --- FORM HANDLERS (THE FIX IS HERE) ---
   const handleRegisterCargo = async (e: any) => {
-    e.preventDefault(); setActionLoading(true);
+    e.preventDefault(); 
+    setActionLoading(true);
     try {
+      // 1. Kutengeneza Tracking Number automatically
+      const trackingNumber = "GM-" + Math.floor(100000 + Math.random() * 900000);
+
+      // 2. Kufunga mzigo kwa usahihi kwa ajili ya Prisma
+      const payload = {
+        ...cargoForm,
+        trackingNumber: trackingNumber,
+        status: "RECEIVED", // Lazima iwe na status hii mwanzo
+        registeredById: adminId,
+        shippingCost: Number(cargoForm.shippingCost) || 0,
+        cargoValue: Number(cargoForm.cargoValue) || 0
+      };
+
       const res = await fetch("/api/waybills", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...cargoForm, registeredById: adminId, shippingCost: Number(cargoForm.shippingCost) || 0, cargoValue: Number(cargoForm.cargoValue) || 0 }),
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
       if (res.ok) {
-        alert("Success!"); setCargoForm({ senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "" });
-        fetchWaybills(); setActiveTab("dashboard");
+        alert("Safi! Mzigo umesajiliwa kikamilifu. ✅"); 
+        setCargoForm({ senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "" });
+        fetchWaybills(); 
+        setActiveTab("dashboard");
+      } else {
+        const err = await res.json();
+        alert("Imeshindwa kusajili: " + (err.error || "Angalia kama umeweka taarifa zote."));
       }
-    } catch (error) { alert("Network Error"); } finally { setActionLoading(false); }
+    } catch (error) { 
+      alert("Kosa la kimtandao. API haipatikani!"); 
+    } finally { 
+      setActionLoading(false); 
+    }
   };
 
   const handleAddUser = async (e: any) => {
@@ -207,7 +231,7 @@ export default function Dashboard() {
   const totalRevenue = waybills.reduce((sum: any, item: any) => sum + (item.shippingCost || 0), 0);
   const totalCargoValue = waybills.reduce((sum: any, item: any) => sum + (item.cargoValue || 0), 0);
   const onlineRunnersCount = users.filter((u: any) => u.role === "RUNNER" && u.isActive).length;
-  const filteredWaybills = waybills.filter((w: any) => w.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase()) || w.senderPhone.includes(searchTerm) || w.receiverName.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredWaybills = waybills.filter((w: any) => w.trackingNumber?.toLowerCase().includes(searchTerm.toLowerCase()) || w.senderPhone?.includes(searchTerm) || w.receiverName?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   if (loading && waybills.length === 0) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-500">Loading system...</div>;
 
@@ -222,7 +246,7 @@ export default function Dashboard() {
         />
       )}
 
-      {/* 2. SIDEBAR YAKO IMENYOOSHWA (Slide in kwenye simu, inaonekana kwenye PC) */}
+      {/* 2. SIDEBAR YAKO IMENYOOSHWA */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 border-b border-slate-800 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
@@ -230,13 +254,11 @@ export default function Dashboard() {
             <h2 className="text-xl font-black tracking-tight">ADMIN</h2>
           </div>
           
-          {/* Button za Lugha na Kufunga Menu */}
           <div className="flex items-center gap-2">
             <div className="flex bg-slate-800 p-1 rounded-lg">
               <button onClick={() => setLang('en')} className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>EN</button>
               <button onClick={() => setLang('sw')} className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'sw' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>SW</button>
             </div>
-            {/* Kitufe cha X kwenye simu */}
             <button className="md:hidden text-slate-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
               <IconClose />
             </button>
