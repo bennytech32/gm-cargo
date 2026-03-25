@@ -22,7 +22,6 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
-  // Hapa unaweza kurekebisha 'href' ziendane na majina ya folder zako
   const sidebarLinks = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Register Cargo", href: "/dashboard/cargo", icon: Package },
@@ -33,7 +32,7 @@ export default function DashboardLayout({
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden w-full">
       
       {/* Kioo cheusi (Overlay) cha kuficha menu kwenye simu */}
       {isSidebarOpen && (
@@ -43,14 +42,14 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* Sidebar (Menu ya Pembeni) */}
+      {/* Sidebar (Menu ya Pembeni) - Imenyooshwa Mobile & Desktop */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0A1128] text-gray-300 transition-transform duration-300 ease-in-out md:static md:translate-x-0 flex flex-col ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0A1128] text-gray-300 transition-transform duration-300 ease-in-out flex flex-col md:relative md:translate-x-0 ${
+          isSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         {/* Sehemu ya Logo na Jina */}
-        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-800">
+        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-800 shrink-0">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded text-white font-bold text-xl shadow-lg shadow-blue-600/20">
               GM
@@ -72,7 +71,6 @@ export default function DashboardLayout({
         {/* Link za Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
           {sidebarLinks.map((link) => {
-            // Inachunguza kama hii link ndio ukurasa uliopo ili iweke rangi ya bluu
             const isActive = pathname === link.href || pathname?.startsWith(`${link.href}/`);
             return (
               <Link
@@ -93,7 +91,7 @@ export default function DashboardLayout({
         </nav>
 
         {/* Taarifa za Admin na Kitufe cha Logout */}
-        <div className="p-4 border-t border-gray-800 bg-[#070C1D]">
+        <div className="p-4 border-t border-gray-800 bg-[#070C1D] shrink-0">
           <div className="bg-gray-800/50 rounded-xl p-4 mb-4 border border-gray-700/50">
             <p className="text-xs text-gray-400 mb-1">Logged in as</p>
             <p className="text-white font-semibold truncate">Bosi Mkuu</p>
@@ -123,10 +121,9 @@ export default function DashboardLayout({
           </button>
         </header>
 
-        {/* Hapa ndipo zile kurasa zako (Dashboard, Cargo n.k) zinapotokea */}
+        {/* Hapa ndipo zile kurasa zako zinapotokea */}
         <main className="flex-1 overflow-y-auto bg-gray-50/50">
-          {/* Tumeongeza padding ili isigusane na mipaka */}
-          <div className="p-4 md:p-8 max-w-7xl mx-auto">
+          <div className="p-4 md:p-8 max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>
