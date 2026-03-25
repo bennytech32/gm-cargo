@@ -93,7 +93,7 @@ export default function Dashboard() {
   const [lang, setLang] = useState("en"); 
   const t = dict[lang];
   
-  // --- STATES ---
+  // --- STATES ZA KAWAIDA ---
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [activeTab, setActiveTab] = useState("dashboard"); 
   const [waybills, setWaybills] = useState<any[]>([]);
@@ -103,6 +103,10 @@ export default function Dashboard() {
   const [adminName, setAdminName] = useState("");
   const [adminId, setAdminId] = useState("");
   
+  // --- STATES ZA KU-PRINT (MPYA - INATATUA SHIDA YA SIMU) ---
+  const [printingReceipt, setPrintingReceipt] = useState<any>(null);
+  const [printingManifest, setPrintingManifest] = useState<any>(null);
+
   const [agents, setAgents] = useState([{ id: 1, name: "Juma Wakala", region: "Mwanza", phone: "0755123456", address: "Nyegezi Stand" }]);
   const [manifests, setManifests] = useState([{ id: "MNF-1001", driver: "Ally Juma", vehicle: "T 123 ABC", route: "Dar - Mwanza", status: "PENDING" }]);
   
@@ -125,7 +129,6 @@ export default function Dashboard() {
   const [companyTin, setCompanyTin] = useState("152-356-013");
   const [companyWebsite, setCompanyWebsite] = useState("www.gm-cargo.co.tz");
 
-  // --- INITIAL LOAD ---
   useEffect(() => {
     const id = localStorage.getItem("admin_id");
     if (!id) {
@@ -147,7 +150,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  // --- API CALLS ---
   async function fetchWaybills() {
     try {
       const res = await fetch("/api/waybills");
@@ -187,114 +189,13 @@ export default function Dashboard() {
     setWaybills(prev => prev.map(w => w.id === waybillId ? { ...w, [field]: value } : w));
   };
 
-  // --- PRINT FUNCTIONS (FIXED FOR MOBILE PREVIEW) ---
+  // --- TRIGGER PRINTING STATES ---
   const handlePrintReceipt = (mzigo: any) => {
-    const runnerName = getRunnerName(mzigo.registeredById);
-    const agent = agents.find((a: any) => a.id.toString() === mzigo.agentId);
-    const agentHtml = agent ? `<br>------------------------<br>AGENT (${agent.region.toUpperCase()}):<br>${agent.phone}<br>${agent.name}<br>` : "";
-    
-    const payStatusLabel = mzigo.paymentStatus === "PAID" ? "PAID" : mzigo.paymentStatus === "PAY_ON_DELIVERY" ? "PAY ON DELIVERY" : mzigo.paymentStatus === "CREDIT" ? "CREDIT" : "PAID";
-    const payMethodLabel = mzigo.paymentMethod || "CASH";
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    const htmlContent = `<html><head><title>Risiti - ${mzigo.trackingNumber}</title><style>
-      @page { margin: 0; size: 58mm auto; }
-      body { font-family: 'Courier New', monospace; width: 58mm; margin: 0; padding: 2mm; color: #000; font-size: 11px; line-height: 1.3; box-sizing: border-box; }
-      .center { text-align: center; } .left { text-align: left; } .bold { font-weight: bold; }
-      .qr-code { display: block; margin: 10px auto; width: 80px; height: 80px; }
-      @media print {
-        .no-print { display: none !important; }
-      }
-      .close-btn { display: block; width: 100%; padding: 10px; margin-top: 20px; background: #dc2626; color: white; text-align: center; text-decoration: none; font-weight: bold; font-family: sans-serif; border-radius: 5px; }
-    </style></head><body>
-      
-      <div class="center">
-        ========================<br>
-        <span style="font-size: 12px; font-weight: bold;">GM CARGO COMPANY LIMITED</span><br>
-        Reliable • Fast • Secure Logistics<br>
-        ${companyPhones}<br>
-        ${companyWebsite}<br>
-        TIN: ${companyTin}<br>
-        ========================
-      </div>
-
-      <div class="left">
-        <br>
-        RECEIPT NO: ${mzigo.trackingNumber}<br>
-        DATE: ${new Date(mzigo.createdAt).toLocaleDateString()}<br>
-        FROM: DAR ES SALAAM<br>
-        TO: ${mzigo.destination.toUpperCase()}<br>
-        
-        <br>------------------------<br>
-        SENDER:<br>
-        ${mzigo.senderName}<br>
-        ${mzigo.senderPhone}<br>
-        
-        <br>------------------------<br>
-        RECEIVER:<br>
-        ${mzigo.receiverName}<br>
-        ${mzigo.receiverPhone}<br>
-        
-        <br>------------------------<br>
-        CARGO DETAILS:<br>
-        Item: ${mzigo.description || 'Mizigo'}<br>
-        Amount: Tsh ${mzigo.shippingCost?.toLocaleString() || 0}<br>
-        Payment: <span class="bold">${payStatusLabel} (${payMethodLabel})</span><br>
-        
-        ${agentHtml}
-        
-        <br>------------------------<br>
-        TERMS:<br>
-        ${receiptTerms.replace(/\n/g, '<br>')}<br>
-        
-        <br>------------------------<br>
-      </div>
-
-      <div class="center">
-        <img class="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${mzigo.trackingNumber}" alt="QR Code" />
-        Served by: ${runnerName}<br>
-        Thank you for choosing GM Cargo<br>
-        ========================
-      </div>
-
-      <a href="#" class="no-print close-btn" onclick="window.close(); return false;">X Funga Risiti Hii (Close)</a>
-
-      <script>
-        // TUMEONDOA window.close() IKIWA AUTOMATIC ILI SIMU ZISIFUNGE PREVIEW
-        setTimeout(() => { window.print(); }, 800);
-      </script>
-    </body></html>`;
-    printWindow.document.write(htmlContent); printWindow.document.close();
+    setPrintingReceipt(mzigo); // Inaifungua risiti ndani ya screen
   };
 
   const handlePrintManifest = (manifest: any) => {
-    const manifestCargo = waybills.filter(w => w.manifestId === manifest.id);
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    const htmlContent = `<html><head><title>Manifest - ${manifest.id}</title><style>
-      body{font-family:Arial,sans-serif;padding:30px;color:#000}
-      .header{text-align:center;margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:15px}
-      .header h1{margin:0 0 5px 0;font-size:28px;text-transform:uppercase}
-      .details{display:flex;justify-content:space-between;margin-bottom:20px;font-weight:bold;background:#f9f9f9;padding:15px;border:1px solid #ddd}
-      table{width:100%;border-collapse:collapse;margin-bottom:30px;font-size:12px}
-      th,td{border:1px solid #000;padding:10px;text-align:left}
-      th{background-color:#f2f2f2;text-transform:uppercase}
-      .footer{display:flex;justify-content:space-between;margin-top:50px;font-weight:bold}
-      .sig-line{border-top:1px solid #000;width:200px;padding-top:5px;text-align:center}
-      @media print { .no-print { display: none !important; } }
-      .close-btn { display: inline-block; padding: 10px 20px; background: #dc2626; color: white; text-decoration: none; font-weight: bold; border-radius: 5px; margin-bottom: 20px;}
-    </style></head><body>
-      <div class="no-print" style="text-align: center;">
-        <a href="#" class="close-btn" onclick="window.close(); return false;">X Funga Ripoti Hii (Close)</a>
-      </div>
-      <div class="header"><h1>GM CARGO - DISPATCH MANIFEST</h1><p style="margin:0;font-size:18px;">Manifest No: <b>${manifest.id}</b></p></div><div class="details"><div>Route: ${manifest.route}</div><div>Driver: ${manifest.driver}</div><div>Vehicle: ${manifest.vehicle}</div><div>Date: ${new Date().toLocaleDateString()}</div></div><table><thead><tr><th>No.</th><th>Tracking</th><th>Sender Details</th><th>Receiver Details</th><th>Destination</th><th>Payment</th><th>Sign</th></tr></thead><tbody>${manifestCargo.length>0?manifestCargo.map((w:any,i:number)=>{return `<tr><td>${i+1}</td><td><b>${w.trackingNumber}</b></td><td>${w.senderName}<br/>${w.senderPhone}</td><td>${w.receiverName}<br/>${w.receiverPhone}</td><td>${w.destination}</td><td>${w.paymentStatus || 'PAID'}</td><td></td></tr>`}).join(''):'<tr><td colspan="7" style="text-align:center;padding:20px;">Hakuna mizigo kwenye Manifest hii.</td></tr>'}</tbody></table><div class="footer"><div><div class="sig-line">Driver Signature</div></div><div><div class="sig-line">Manager Signature</div></div></div>
-      <script>
-        setTimeout(() => { window.print(); }, 800);
-      </script>
-    </body></html>`;
-    printWindow.document.write(htmlContent); printWindow.document.close();
+    setPrintingManifest(manifest); // Inafungua manifest ndani ya screen
   };
 
   const getRunnerName = (id: string) => {
@@ -308,11 +209,6 @@ export default function Dashboard() {
     setActionLoading(true);
     try {
       const trackingNumber = "GM-" + Math.floor(100000 + Math.random() * 900000);
-      
-      if (cargoForm.sendSms) {
-        console.log(`[SMS SYSTEM] Sending SMS to ${cargoForm.receiverPhone}: "Mzigo wako umesajiliwa. Tracking: ${trackingNumber}"`);
-      }
-
       const payload = {
         ...cargoForm, trackingNumber, status: "RECEIVED", registeredById: adminId,
         shippingCost: Number(cargoForm.shippingCost) || 0, cargoValue: Number(cargoForm.cargoValue) || 0,
@@ -328,8 +224,7 @@ export default function Dashboard() {
         setCargoForm({ senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "", paymentStatus: "PAID", paymentMethod: "CASH", sendSms: true });
         fetchWaybills(); setActiveTab("dashboard");
       } else {
-        const err = await res.json();
-        alert("Imeshindwa kusajili: " + (err.error || "Tafadhali hakikisha umeupdate Prisma Schema."));
+        alert("Imeshindwa kusajili. Hakikisha mtandao upo sawa.");
       }
     } catch (error) { alert("Kosa la kimtandao. API haipatikani!"); } finally { setActionLoading(false); }
   };
@@ -366,7 +261,6 @@ export default function Dashboard() {
     alert("Settings Saved!");
   };
 
-  // --- ANALYTICS & FINANCE CALCULATIONS ---
   const totalRevenue = waybills.reduce((sum: any, item: any) => sum + (item.shippingCost || 0), 0);
   const totalCargoValue = waybills.reduce((sum: any, item: any) => sum + (item.cargoValue || 0), 0);
   const onlineRunnersCount = users.filter((u: any) => u.role === "RUNNER" && u.isActive).length;
@@ -380,6 +274,215 @@ export default function Dashboard() {
   const netCash = totalCash - totalExpensesAmount;
 
   if (loading && waybills.length === 0) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-500">Loading system...</div>;
+
+  // ============================================================================
+  // VIEWS ZA KU-PRINT (HIZI ZINAONEKANA WAKATI WA KUPRINT TU)
+  // ============================================================================
+  
+  if (printingReceipt) {
+    const mzigo = printingReceipt;
+    const runnerName = getRunnerName(mzigo.registeredById);
+    const agent = agents.find((a: any) => a.id.toString() === mzigo.agentId);
+    const payStatusLabel = mzigo.paymentStatus === "PAID" ? "PAID" : mzigo.paymentStatus === "PAY_ON_DELIVERY" ? "PAY ON DELIVERY" : mzigo.paymentStatus === "CREDIT" ? "CREDIT" : "PAID";
+    const payMethodLabel = mzigo.paymentMethod || "CASH";
+
+    // Function ya Kushare text kwa ajili ya RawBT/Bluetooth Printers
+    const shareToPrinterApp = () => {
+      const textToShare = `
+=== GM CARGO ===
+Receipt No: ${mzigo.trackingNumber}
+Date: ${new Date(mzigo.createdAt).toLocaleDateString()}
+From: DAR ES SALAAM
+To: ${mzigo.destination.toUpperCase()}
+----------------
+SENDER:
+${mzigo.senderName} (${mzigo.senderPhone})
+RECEIVER:
+${mzigo.receiverName} (${mzigo.receiverPhone})
+----------------
+Item: ${mzigo.description || 'Mizigo'}
+Amount: Tsh ${mzigo.shippingCost?.toLocaleString() || 0}
+Payment: ${payStatusLabel} (${payMethodLabel})
+${agent ? `\nAGENT (${agent.region}):\n${agent.phone}\n${agent.name}\n` : ''}----------------
+TERMS:
+${receiptTerms}
+----------------
+Served by: ${runnerName}
+Thank you for choosing GM Cargo
+`;
+      if (navigator.share) {
+        navigator.share({ title: 'GM Cargo Receipt', text: textToShare }).catch(console.error);
+      } else {
+        alert("Simu yako haina uwezo wa kushare moja kwa moja. Tumia kitufe cha Print/Download PDF.");
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-slate-800 flex flex-col items-center py-10 font-sans w-full">
+        {/* CONTROLS (Hazionekani kwenye karatasi) */}
+        <div className="no-print flex flex-wrap gap-4 mb-8 px-4 justify-center">
+          <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-blue-900/50 hover:bg-blue-500">
+            🖨️ Print / Download PDF
+          </button>
+          <button onClick={shareToPrinterApp} className="bg-green-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-green-900/50 hover:bg-green-500">
+            📲 Share to Printer App
+          </button>
+          <button onClick={() => setPrintingReceipt(null)} className="bg-red-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-red-900/50 hover:bg-red-500">
+            ❌ Rudi Nyuma (Close)
+          </button>
+        </div>
+
+        {/* RISITI YENYEWE (58mm Design) */}
+        <div className="print-container bg-white" style={{ width: '58mm', padding: '2mm', color: '#000', fontFamily: 'monospace', fontSize: '11px', lineHeight: '1.3' }}>
+          <div className="text-center">
+            ========================<br/>
+            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>GM CARGO COMPANY LIMITED</span><br/>
+            Reliable • Fast • Secure Logistics<br/>
+            {companyPhones}<br/>
+            {companyWebsite}<br/>
+            TIN: {companyTin}<br/>
+            ========================
+          </div>
+
+          <div className="text-left mt-2">
+            RECEIPT NO: {mzigo.trackingNumber}<br/>
+            DATE: {new Date(mzigo.createdAt).toLocaleDateString()}<br/>
+            FROM: DAR ES SALAAM<br/>
+            TO: {mzigo.destination.toUpperCase()}<br/>
+            
+            <br/>------------------------<br/>
+            SENDER:<br/>
+            {mzigo.senderName}<br/>
+            {mzigo.senderPhone}<br/>
+            
+            <br/>------------------------<br/>
+            RECEIVER:<br/>
+            {mzigo.receiverName}<br/>
+            {mzigo.receiverPhone}<br/>
+            
+            <br/>------------------------<br/>
+            CARGO DETAILS:<br/>
+            Item: {mzigo.description || 'Mizigo'}<br/>
+            Amount: Tsh {mzigo.shippingCost?.toLocaleString() || 0}<br/>
+            Payment: <span style={{ fontWeight: 'bold' }}>{payStatusLabel} ({payMethodLabel})</span><br/>
+            
+            {agent && (
+              <>
+                <br/>------------------------<br/>
+                AGENT ({agent.region.toUpperCase()}):<br/>
+                {agent.phone}<br/>
+                {agent.name}<br/>
+              </>
+            )}
+            
+            <br/>------------------------<br/>
+            TERMS:<br/>
+            {receiptTerms.split('\n').map((line: string, i: number) => <span key={i}>{line}<br/></span>)}
+            
+            <br/>------------------------<br/>
+          </div>
+
+          <div className="text-center mt-2 flex flex-col items-center">
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${mzigo.trackingNumber}`} alt="QR" style={{ width: '80px', height: '80px', margin: '10px 0' }} />
+            Served by: {runnerName}<br/>
+            Thank you for choosing GM Cargo<br/>
+            ========================
+          </div>
+        </div>
+
+        {/* CSS KWA AJILI YA KU-PRINT TU */}
+        <style dangerouslySetInnerHTML={{__html: `
+          @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            .print-container { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            @page { margin: 0; size: 58mm auto; }
+          }
+        `}} />
+      </div>
+    );
+  }
+
+  if (printingManifest) {
+    const manifest = printingManifest;
+    const manifestCargo = waybills.filter(w => w.manifestId === manifest.id);
+    
+    return (
+      <div className="min-h-screen bg-slate-800 flex flex-col items-center py-10 font-sans w-full">
+        {/* CONTROLS */}
+        <div className="no-print flex flex-wrap gap-4 mb-8 px-4 justify-center">
+          <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-blue-900/50 hover:bg-blue-500">
+            🖨️ Print / Download PDF
+          </button>
+          <button onClick={() => setPrintingManifest(null)} className="bg-red-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-red-900/50 hover:bg-red-500">
+            ❌ Rudi Nyuma (Close)
+          </button>
+        </div>
+
+        {/* MANIFEST YENYEWE (A4 Design) */}
+        <div className="print-container bg-white p-8 w-full max-w-4xl text-black" style={{ fontFamily: 'Arial, sans-serif' }}>
+          <div className="text-center border-b-2 border-black pb-4 mb-6">
+            <h1 className="text-2xl font-black uppercase mb-1">GM CARGO - DISPATCH MANIFEST</h1>
+            <p className="text-lg">Manifest No: <b>{manifest.id}</b></p>
+          </div>
+          
+          <div className="flex justify-between bg-gray-100 p-4 border border-gray-300 font-bold mb-6 text-sm">
+            <div>Route: {manifest.route}</div>
+            <div>Driver: {manifest.driver}</div>
+            <div>Vehicle: {manifest.vehicle}</div>
+            <div>Date: {new Date().toLocaleDateString()}</div>
+          </div>
+
+          <table className="w-full border-collapse text-xs mb-10">
+            <thead>
+              <tr className="bg-gray-200 uppercase">
+                <th className="border border-black p-2 text-left">No.</th>
+                <th className="border border-black p-2 text-left">Tracking</th>
+                <th className="border border-black p-2 text-left">Sender Details</th>
+                <th className="border border-black p-2 text-left">Receiver Details</th>
+                <th className="border border-black p-2 text-left">Destination</th>
+                <th className="border border-black p-2 text-left">Payment</th>
+                <th className="border border-black p-2 text-left">Sign</th>
+              </tr>
+            </thead>
+            <tbody>
+              {manifestCargo.length > 0 ? manifestCargo.map((w: any, i: number) => (
+                <tr key={w.id}>
+                  <td className="border border-black p-2">{i + 1}</td>
+                  <td className="border border-black p-2 font-bold">{w.trackingNumber}</td>
+                  <td className="border border-black p-2">{w.senderName}<br/>{w.senderPhone}</td>
+                  <td className="border border-black p-2">{w.receiverName}<br/>{w.receiverPhone}</td>
+                  <td className="border border-black p-2">{w.destination}</td>
+                  <td className="border border-black p-2">{w.paymentStatus || 'PAID'}</td>
+                  <td className="border border-black p-2"></td>
+                </tr>
+              )) : (
+                <tr><td colSpan={7} className="border border-black p-6 text-center text-gray-500">Hakuna mizigo kwenye Manifest hii.</td></tr>
+              )}
+            </tbody>
+          </table>
+
+          <div className="flex justify-between font-bold mt-16 px-10">
+            <div className="text-center border-t border-black pt-2 w-48">Driver Signature</div>
+            <div className="text-center border-t border-black pt-2 w-48">Manager Signature</div>
+          </div>
+        </div>
+
+        <style dangerouslySetInnerHTML={{__html: `
+          @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            .print-container { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+            @page { margin: 1cm; size: A4 portrait; }
+          }
+        `}} />
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // MWISHO WA VIEWS ZA KU-PRINT. CHINI NI DASHBOARD YAKO YA KAWAIDA.
+  // ============================================================================
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden w-full font-sans selection:bg-blue-200">
