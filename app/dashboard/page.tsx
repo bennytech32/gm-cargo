@@ -284,20 +284,15 @@ export default function Dashboard() {
     const payStatusLabel = mzigo.paymentStatus === "PAID" ? "PAID" : mzigo.paymentStatus === "PAY_ON_DELIVERY" ? "PAY ON DELIVERY" : mzigo.paymentStatus === "CREDIT" ? "CREDIT" : "PAID";
     const payMethodLabel = mzigo.paymentMethod || "CASH";
 
-    // --- FUNCTION MPYA YA KUPRINT DIRECT KWENYE POS YA ANDROID (ARNY & OTHERS) ---
     const handleDirectPosPrint = () => {
-      // Tunavuta lile eneo la risiti (Container)
       const receiptElement = document.getElementById("receipt-content");
       if (!receiptElement) return;
 
-      // Njia ya 1: Ikiwa POS Ina-support Intent/JavaScript API ya Print (Mfano Sunmi/Arny Browser API)
       if (typeof (window as any).PrintService !== 'undefined') {
         (window as any).PrintService.print(receiptElement.innerHTML);
         return;
       }
 
-      // Njia ya 2: Kuita window.print() ya asili, lakini tumeilazimisha 
-      // Browser ijue hii ni Raw Text / Thermal Print
       window.print();
     };
 
@@ -333,9 +328,7 @@ Thank you for choosing GM Cargo
 
     return (
       <div className="min-h-screen bg-slate-800 flex flex-col items-center py-10 font-sans w-full">
-        {/* CONTROLS (Hazionekani kwenye karatasi) */}
         <div className="no-print flex flex-wrap gap-4 mb-8 px-4 justify-center">
-          {/* KITUFE KIPYA CHA DIRECT PRINT KWA POS */}
           <button onClick={handleDirectPosPrint} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-blue-900/50 hover:bg-blue-500">
             🖨️ Direct Print (POS)
           </button>
@@ -347,7 +340,6 @@ Thank you for choosing GM Cargo
           </button>
         </div>
 
-        {/* RISITI YENYEWE (58mm Design) - Imewekewa ID="receipt-content" ili ivutwe kiurahisi */}
         <div id="receipt-content" className="print-container bg-white" style={{ width: '58mm', padding: '2mm', color: '#000', fontFamily: 'monospace', fontSize: '11px', lineHeight: '1.3' }}>
           <div className="text-center">
             ========================<br />
@@ -410,9 +402,20 @@ Thank you for choosing GM Cargo
           __html: `
           @media print {
             .no-print { display: none !important; }
-            /* Hapa tunazima margins za browser ili isitake kutengeneza PDF ya A4 */
-            @page { margin: 0; size: 58mm auto; }
-            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            
+            /* Hii inalazimisha print iwe thermal na kuondoa PDF preview kwenye devices nyingi */
+            @page { 
+              size: 58mm auto; 
+              margin: 0 !important; 
+            }
+            
+            body, html { 
+              background: white !important; 
+              margin: 0 !important; 
+              padding: 0 !important; 
+              width: 58mm !important;
+            }
+            
             .print-container { 
                box-shadow: none !important; 
                margin: 0 !important; 
@@ -433,7 +436,6 @@ Thank you for choosing GM Cargo
 
     return (
       <div className="min-h-screen bg-slate-800 flex flex-col items-center py-10 font-sans w-full">
-        {/* CONTROLS */}
         <div className="no-print flex flex-wrap gap-4 mb-8 px-4 justify-center">
           <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-blue-900/50 hover:bg-blue-500">
             🖨️ Print / Download PDF
@@ -443,7 +445,6 @@ Thank you for choosing GM Cargo
           </button>
         </div>
 
-        {/* MANIFEST YENYEWE (A4 Design) */}
         <div className="print-container bg-white p-8 w-full max-w-4xl text-black" style={{ fontFamily: 'Arial, sans-serif' }}>
           <div className="text-center border-b-2 border-black pb-4 mb-6">
             <h1 className="text-2xl font-black uppercase mb-1">GM CARGO - DISPATCH MANIFEST</h1>
