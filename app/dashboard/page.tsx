@@ -11,7 +11,7 @@ const dict: any = {
     sbFinance: "Finance & Reports",
     loggedIn: "Logged in as", logout: "Logout from System",
     dTitle: "Office Overview", dSub: "Track and manage all shipments in real-time.",
-    dSearch: "Search Tracking / Phone...", dRev: "Total Revenue", dVal: "Stored Cargo Value", 
+    dSearch: "Search Tracking / Phone...", dRev: "Total Revenue", dVal: "Stored Cargo Value",
     dTot: "Total Packages", dOnline: "Runners Online",
     thTrack: "Tracking & Runner", thNames: "Sender & Receiver", thDest: "Destination & Assignment", thCost: "Cost / Value", thStatus: "Status & Action",
     btnPrint: "Print", btnDel: "Delete", confirmDel: "Are you sure you want to delete this package?", regBy: "By:", dAssignMan: "Assign Manifest", dAssignAgt: "Assign Agent",
@@ -33,7 +33,7 @@ const dict: any = {
     btnPrintMan: "Print Manifest",
     sTitle: "System Settings", sSub: "Modify receipt terms and other configurations.",
     sTerms: "Receipt Terms & Conditions", sTermsDesc: "These terms will appear at the bottom of printed and WhatsApp receipts.",
-    sPhones: "Company Phone Numbers", sTin: "TIN Number", sWeb: "Website", 
+    sPhones: "Company Phone Numbers", sTin: "TIN Number", sWeb: "Website",
     btnSave: "Save Settings",
     fTitle: "Finance & Daily Reports", fSub: "Manage petty cash, daily earnings, and EOD reports.",
     fExpTitle: "Record Office Expense", fExpDesc: "Expense Description", fExpAmt: "Amount (TZS)", btnExp: "Save Expense",
@@ -46,7 +46,7 @@ const dict: any = {
     sbFinance: "Fedha na Ripoti",
     loggedIn: "Umeingia kama", logout: "Toka Kwenye Mfumo",
     dTitle: "Muhtasari wa Ofisi", dSub: "Fuatilia na dhibiti mizigo yote inayosafirishwa.",
-    dSearch: "Tafuta Tracking / Simu...", dRev: "Mapato (Nauli)", dVal: "Thamani ya Mizigo", 
+    dSearch: "Tafuta Tracking / Simu...", dRev: "Mapato (Nauli)", dVal: "Thamani ya Mizigo",
     dTot: "Jumla ya Mizigo", dOnline: "Runners Online",
     thTrack: "Tracking & Runner", thNames: "Mtumaji & Mpokeaji", thDest: "Mkoa na Upangaji", thCost: "Nauli / Thamani", thStatus: "Hali na Risiti",
     btnPrint: "Printi", btnDel: "Futa", confirmDel: "Je, una uhakika unataka kufuta mzigo huu moja kwa moja?", regBy: "Na:", dAssignMan: "Pangia Manifest", dAssignAgt: "Pangia Wakala",
@@ -68,7 +68,7 @@ const dict: any = {
     btnPrintMan: "Printi Manifest",
     sTitle: "Mipangilio ya Mfumo", sSub: "Badilisha masharti yanayotokea chini ya risiti za wateja.",
     sTerms: "Masharti ya Risiti", sTermsDesc: "Maneno haya yataonekana mwishoni mwa kila risiti.",
-    sPhones: "Namba za Simu za Ofisi", sTin: "Namba ya TIN", sWeb: "Tovuti (Website)", 
+    sPhones: "Namba za Simu za Ofisi", sTin: "Namba ya TIN", sWeb: "Tovuti (Website)",
     btnSave: "Hifadhi Mipangilio",
     fTitle: "Fedha na Ripoti za Siku", fSub: "Dhibiti mapato, matumizi ya ofisi, na ripoti za mwisho wa siku.",
     fExpTitle: "Sajili Matumizi (Petty Cash)", fExpDesc: "Maelezo ya Matumizi", fExpAmt: "Kiasi (TZS)", btnExp: "Hifadhi Matumizi",
@@ -90,37 +90,37 @@ const IconClose = () => <svg className="w-6 h-6" fill="none" stroke="currentColo
 
 export default function Dashboard() {
   const router = useRouter();
-  const [lang, setLang] = useState("en"); 
+  const [lang, setLang] = useState("en");
   const t = dict[lang];
-  
+
   // --- STATES ZA KAWAIDA ---
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
-  const [activeTab, setActiveTab] = useState("dashboard"); 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [waybills, setWaybills] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]); 
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [adminName, setAdminName] = useState("");
   const [adminId, setAdminId] = useState("");
-  
-  // --- STATES ZA KU-PRINT (MPYA - INATATUA SHIDA YA SIMU) ---
+
+  // --- STATES ZA KU-PRINT ---
   const [printingReceipt, setPrintingReceipt] = useState<any>(null);
   const [printingManifest, setPrintingManifest] = useState<any>(null);
 
   const [agents, setAgents] = useState([{ id: 1, name: "Juma Wakala", region: "Mwanza", phone: "0755123456", address: "Nyegezi Stand" }]);
   const [manifests, setManifests] = useState([{ id: "MNF-1001", driver: "Ally Juma", vehicle: "T 123 ABC", route: "Dar - Mwanza", status: "PENDING" }]);
-  
+
   const [actionLoading, setActionLoading] = useState(false);
-  
-  const [cargoForm, setCargoForm] = useState({ 
+
+  const [cargoForm, setCargoForm] = useState({
     senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "",
     paymentStatus: "PAID", paymentMethod: "CASH", sendSms: true
   });
-  
+
   const [userForm, setUserForm] = useState({ name: "", phone: "", password: "", role: "RUNNER" });
   const [agentForm, setAgentForm] = useState({ name: "", region: "", phone: "", address: "" });
   const [manifestForm, setManifestForm] = useState({ driver: "", vehicle: "", route: "" });
-  
+
   const [expenses, setExpenses] = useState([{ id: 1, desc: "Chai ya wabeba mizigo", amount: 5000, date: new Date().toISOString() }]);
   const [expenseForm, setExpenseForm] = useState({ desc: "", amount: "" });
 
@@ -138,7 +138,7 @@ export default function Dashboard() {
       setAdminName(localStorage.getItem("admin_name") || "Admin");
       fetchWaybills();
       fetchUsers();
-      
+
       const savedTerms = localStorage.getItem("receipt_terms");
       if (savedTerms) setReceiptTerms(savedTerms);
       const savedPhones = localStorage.getItem("company_phones");
@@ -189,13 +189,12 @@ export default function Dashboard() {
     setWaybills(prev => prev.map(w => w.id === waybillId ? { ...w, [field]: value } : w));
   };
 
-  // --- TRIGGER PRINTING STATES ---
   const handlePrintReceipt = (mzigo: any) => {
-    setPrintingReceipt(mzigo); // Inaifungua risiti ndani ya screen
+    setPrintingReceipt(mzigo);
   };
 
   const handlePrintManifest = (manifest: any) => {
-    setPrintingManifest(manifest); // Inafungua manifest ndani ya screen
+    setPrintingManifest(manifest);
   };
 
   const getRunnerName = (id: string) => {
@@ -203,9 +202,8 @@ export default function Dashboard() {
     return user ? user.name : "Ofisini / Admin";
   };
 
-  // --- FORM HANDLERS ---
   const handleRegisterCargo = async (e: any) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setActionLoading(true);
     try {
       const trackingNumber = "GM-" + Math.floor(100000 + Math.random() * 900000);
@@ -220,7 +218,7 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        alert("Safi! Mzigo umesajiliwa kikamilifu. ✅"); 
+        alert("Safi! Mzigo umesajiliwa kikamilifu. ✅");
         setCargoForm({ senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "", paymentStatus: "PAID", paymentMethod: "CASH", sendSms: true });
         fetchWaybills(); setActiveTab("dashboard");
       } else {
@@ -253,7 +251,7 @@ export default function Dashboard() {
   };
 
   const handleSaveSettings = (e: any) => {
-    e.preventDefault(); 
+    e.preventDefault();
     localStorage.setItem("receipt_terms", receiptTerms);
     localStorage.setItem("company_phones", companyPhones);
     localStorage.setItem("company_tin", companyTin);
@@ -278,7 +276,7 @@ export default function Dashboard() {
   // ============================================================================
   // VIEWS ZA KU-PRINT (HIZI ZINAONEKANA WAKATI WA KUPRINT TU)
   // ============================================================================
-  
+
   if (printingReceipt) {
     const mzigo = printingReceipt;
     const runnerName = getRunnerName(mzigo.registeredById);
@@ -286,7 +284,23 @@ export default function Dashboard() {
     const payStatusLabel = mzigo.paymentStatus === "PAID" ? "PAID" : mzigo.paymentStatus === "PAY_ON_DELIVERY" ? "PAY ON DELIVERY" : mzigo.paymentStatus === "CREDIT" ? "CREDIT" : "PAID";
     const payMethodLabel = mzigo.paymentMethod || "CASH";
 
-    // Function ya Kushare text kwa ajili ya RawBT/Bluetooth Printers
+    // --- FUNCTION MPYA YA KUPRINT DIRECT KWENYE POS YA ANDROID (ARNY & OTHERS) ---
+    const handleDirectPosPrint = () => {
+      // Tunavuta lile eneo la risiti (Container)
+      const receiptElement = document.getElementById("receipt-content");
+      if (!receiptElement) return;
+
+      // Njia ya 1: Ikiwa POS Ina-support Intent/JavaScript API ya Print (Mfano Sunmi/Arny Browser API)
+      if (typeof (window as any).PrintService !== 'undefined') {
+        (window as any).PrintService.print(receiptElement.innerHTML);
+        return;
+      }
+
+      // Njia ya 2: Kuita window.print() ya asili, lakini tumeilazimisha 
+      // Browser ijue hii ni Raw Text / Thermal Print
+      window.print();
+    };
+
     const shareToPrinterApp = () => {
       const textToShare = `
 === GM CARGO ===
@@ -313,7 +327,7 @@ Thank you for choosing GM Cargo
       if (navigator.share) {
         navigator.share({ title: 'GM Cargo Receipt', text: textToShare }).catch(console.error);
       } else {
-        alert("Simu yako haina uwezo wa kushare moja kwa moja. Tumia kitufe cha Print/Download PDF.");
+        alert("Simu yako haina uwezo wa kushare moja kwa moja. Pakua RawBT App.");
       }
     };
 
@@ -321,82 +335,92 @@ Thank you for choosing GM Cargo
       <div className="min-h-screen bg-slate-800 flex flex-col items-center py-10 font-sans w-full">
         {/* CONTROLS (Hazionekani kwenye karatasi) */}
         <div className="no-print flex flex-wrap gap-4 mb-8 px-4 justify-center">
-          <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-blue-900/50 hover:bg-blue-500">
-            🖨️ Print / Download PDF
+          {/* KITUFE KIPYA CHA DIRECT PRINT KWA POS */}
+          <button onClick={handleDirectPosPrint} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-blue-900/50 hover:bg-blue-500">
+            🖨️ Direct Print (POS)
           </button>
           <button onClick={shareToPrinterApp} className="bg-green-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-green-900/50 hover:bg-green-500">
-            📲 Share to Printer App
+            📲 Share to RawBT
           </button>
           <button onClick={() => setPrintingReceipt(null)} className="bg-red-600 text-white px-6 py-3 rounded-xl font-black shadow-xl shadow-red-900/50 hover:bg-red-500">
-            ❌ Rudi Nyuma (Close)
+            ❌ Rudi Nyuma
           </button>
         </div>
 
-        {/* RISITI YENYEWE (58mm Design) */}
-        <div className="print-container bg-white" style={{ width: '58mm', padding: '2mm', color: '#000', fontFamily: 'monospace', fontSize: '11px', lineHeight: '1.3' }}>
+        {/* RISITI YENYEWE (58mm Design) - Imewekewa ID="receipt-content" ili ivutwe kiurahisi */}
+        <div id="receipt-content" className="print-container bg-white" style={{ width: '58mm', padding: '2mm', color: '#000', fontFamily: 'monospace', fontSize: '11px', lineHeight: '1.3' }}>
           <div className="text-center">
-            ========================<br/>
-            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>GM CARGO COMPANY LIMITED</span><br/>
-            Reliable • Fast • Secure Logistics<br/>
-            {companyPhones}<br/>
-            {companyWebsite}<br/>
-            TIN: {companyTin}<br/>
+            ========================<br />
+            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>GM CARGO COMPANY LIMITED</span><br />
+            Reliable • Fast • Secure Logistics<br />
+            {companyPhones}<br />
+            {companyWebsite}<br />
+            TIN: {companyTin}<br />
             ========================
           </div>
 
           <div className="text-left mt-2">
-            RECEIPT NO: {mzigo.trackingNumber}<br/>
-            DATE: {new Date(mzigo.createdAt).toLocaleDateString()}<br/>
-            FROM: DAR ES SALAAM<br/>
-            TO: {mzigo.destination.toUpperCase()}<br/>
-            
-            <br/>------------------------<br/>
-            SENDER:<br/>
-            {mzigo.senderName}<br/>
-            {mzigo.senderPhone}<br/>
-            
-            <br/>------------------------<br/>
-            RECEIVER:<br/>
-            {mzigo.receiverName}<br/>
-            {mzigo.receiverPhone}<br/>
-            
-            <br/>------------------------<br/>
-            CARGO DETAILS:<br/>
-            Item: {mzigo.description || 'Mizigo'}<br/>
-            Amount: Tsh {mzigo.shippingCost?.toLocaleString() || 0}<br/>
-            Payment: <span style={{ fontWeight: 'bold' }}>{payStatusLabel} ({payMethodLabel})</span><br/>
-            
+            RECEIPT NO: {mzigo.trackingNumber}<br />
+            DATE: {new Date(mzigo.createdAt).toLocaleDateString()}<br />
+            FROM: DAR ES SALAAM<br />
+            TO: {mzigo.destination.toUpperCase()}<br />
+
+            <br />------------------------<br />
+            SENDER:<br />
+            {mzigo.senderName}<br />
+            {mzigo.senderPhone}<br />
+
+            <br />------------------------<br />
+            RECEIVER:<br />
+            {mzigo.receiverName}<br />
+            {mzigo.receiverPhone}<br />
+
+            <br />------------------------<br />
+            CARGO DETAILS:<br />
+            Item: {mzigo.description || 'Mizigo'}<br />
+            Amount: Tsh {mzigo.shippingCost?.toLocaleString() || 0}<br />
+            Payment: <span style={{ fontWeight: 'bold' }}>{payStatusLabel} ({payMethodLabel})</span><br />
+
             {agent && (
               <>
-                <br/>------------------------<br/>
-                AGENT ({agent.region.toUpperCase()}):<br/>
-                {agent.phone}<br/>
-                {agent.name}<br/>
+                <br />------------------------<br />
+                AGENT ({agent.region.toUpperCase()}):<br />
+                {agent.phone}<br />
+                {agent.name}<br />
               </>
             )}
-            
-            <br/>------------------------<br/>
-            TERMS:<br/>
-            {receiptTerms.split('\n').map((line: string, i: number) => <span key={i}>{line}<br/></span>)}
-            
-            <br/>------------------------<br/>
+
+            <br />------------------------<br />
+            TERMS:<br />
+            {receiptTerms.split('\n').map((line: string, i: number) => <span key={i}>{line}<br /></span>)}
+
+            <br />------------------------<br />
           </div>
 
           <div className="text-center mt-2 flex flex-col items-center">
             <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${mzigo.trackingNumber}`} alt="QR" style={{ width: '80px', height: '80px', margin: '10px 0' }} />
-            Served by: {runnerName}<br/>
-            Thank you for choosing GM Cargo<br/>
+            Served by: {runnerName}<br />
+            Thank you for choosing GM Cargo<br />
             ========================
           </div>
         </div>
 
-        {/* CSS KWA AJILI YA KU-PRINT TU */}
-        <style dangerouslySetInnerHTML={{__html: `
+        {/* CSS MAALUM KWA AJILI YA THERMAL PRINTING ILI BROWSER ISILELTE MAMBO YA PDF */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
           @media print {
             .no-print { display: none !important; }
-            body { background: white !important; margin: 0 !important; padding: 0 !important; }
-            .print-container { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            /* Hapa tunazima margins za browser ili isitake kutengeneza PDF ya A4 */
             @page { margin: 0; size: 58mm auto; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            .print-container { 
+               box-shadow: none !important; 
+               margin: 0 !important; 
+               padding: 0 !important; 
+               width: 58mm !important; 
+               max-width: 58mm !important; 
+               overflow: hidden;
+            }
           }
         `}} />
       </div>
@@ -406,7 +430,7 @@ Thank you for choosing GM Cargo
   if (printingManifest) {
     const manifest = printingManifest;
     const manifestCargo = waybills.filter(w => w.manifestId === manifest.id);
-    
+
     return (
       <div className="min-h-screen bg-slate-800 flex flex-col items-center py-10 font-sans w-full">
         {/* CONTROLS */}
@@ -425,7 +449,7 @@ Thank you for choosing GM Cargo
             <h1 className="text-2xl font-black uppercase mb-1">GM CARGO - DISPATCH MANIFEST</h1>
             <p className="text-lg">Manifest No: <b>{manifest.id}</b></p>
           </div>
-          
+
           <div className="flex justify-between bg-gray-100 p-4 border border-gray-300 font-bold mb-6 text-sm">
             <div>Route: {manifest.route}</div>
             <div>Driver: {manifest.driver}</div>
@@ -450,8 +474,8 @@ Thank you for choosing GM Cargo
                 <tr key={w.id}>
                   <td className="border border-black p-2">{i + 1}</td>
                   <td className="border border-black p-2 font-bold">{w.trackingNumber}</td>
-                  <td className="border border-black p-2">{w.senderName}<br/>{w.senderPhone}</td>
-                  <td className="border border-black p-2">{w.receiverName}<br/>{w.receiverPhone}</td>
+                  <td className="border border-black p-2">{w.senderName}<br />{w.senderPhone}</td>
+                  <td className="border border-black p-2">{w.receiverName}<br />{w.receiverPhone}</td>
                   <td className="border border-black p-2">{w.destination}</td>
                   <td className="border border-black p-2">{w.paymentStatus || 'PAID'}</td>
                   <td className="border border-black p-2"></td>
@@ -468,7 +492,8 @@ Thank you for choosing GM Cargo
           </div>
         </div>
 
-        <style dangerouslySetInnerHTML={{__html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           @media print {
             .no-print { display: none !important; }
             body { background: white !important; margin: 0 !important; padding: 0 !important; }
@@ -486,7 +511,7 @@ Thank you for choosing GM Cargo
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden w-full font-sans selection:bg-blue-200">
-      
+
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsSidebarOpen(false)} />
       )}
@@ -497,7 +522,7 @@ Thank you for choosing GM Cargo
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-black">GM</div>
             <h2 className="text-xl font-black tracking-tight">ADMIN</h2>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <div className="flex bg-slate-800 p-1 rounded-lg">
               <button onClick={() => setLang('en')} className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>EN</button>
@@ -508,18 +533,18 @@ Thank you for choosing GM Cargo
             </button>
           </div>
         </div>
-        
+
         <div className="flex-1 py-6 px-4 space-y-2 overflow-y-auto custom-scrollbar">
           <button onClick={() => { setActiveTab("dashboard"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconHome /> {t.sbDash}</button>
           <button onClick={() => { setActiveTab("register"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'register' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconBox /> {t.sbReg}</button>
           <button onClick={() => { setActiveTab("users"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'users' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconUsers /> {t.sbUsers}</button>
           <button onClick={() => { setActiveTab("agents"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'agents' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconAgents /> {t.sbAgents}</button>
           <button onClick={() => { setActiveTab("manifest"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'manifest' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconManifest /> {t.sbManifest}</button>
-          
+
           <div className="my-4 border-t border-slate-800/50"></div>
-          
+
           <button onClick={() => { setActiveTab("finance"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'finance' ? 'bg-green-600 text-white shadow-lg shadow-green-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconWallet /> {t.sbFinance}</button>
-          
+
           <button onClick={() => { setActiveTab("settings"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconSettings /> {t.sbSettings}</button>
         </div>
 
@@ -533,7 +558,7 @@ Thank you for choosing GM Cargo
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        
+
         <header className="flex items-center justify-between px-4 py-4 bg-white border-b md:hidden shadow-sm shrink-0 z-30">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-black text-white text-sm">GM</div>
@@ -545,7 +570,7 @@ Thank you for choosing GM Cargo
         </header>
 
         <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50">
-          
+
           {/* TAB 1: DASHBOARD */}
           {activeTab === "dashboard" && (
             <div className="animate-fade-in-up max-w-7xl mx-auto">
@@ -554,8 +579,8 @@ Thank you for choosing GM Cargo
                   <h1 className="text-2xl md:text-3xl font-black text-slate-900">{t.dTitle}</h1>
                   <p className="text-sm md:text-base text-slate-500">{t.dSub}</p>
                 </div>
-                <input 
-                  type="text" placeholder={t.dSearch} 
+                <input
+                  type="text" placeholder={t.dSearch}
                   className="w-full md:w-80 p-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-blue-600 text-black outline-none transition-all"
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -658,52 +683,52 @@ Thank you for choosing GM Cargo
             <div className="max-w-4xl mx-auto animate-fade-in-up">
               <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">{t.rTitle}</h1>
               <p className="text-sm md:text-base text-slate-500 mb-8">{t.rSub}</p>
-              
+
               <form onSubmit={handleRegisterCargo} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rSendN}</label>
-                    <input type="text" required value={cargoForm.senderName} onChange={(e)=>setCargoForm({...cargoForm, senderName: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
+                    <input type="text" required value={cargoForm.senderName} onChange={(e) => setCargoForm({ ...cargoForm, senderName: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rSendP}</label>
-                    <input type="text" required value={cargoForm.senderPhone} onChange={(e)=>setCargoForm({...cargoForm, senderPhone: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
+                    <input type="text" required value={cargoForm.senderPhone} onChange={(e) => setCargoForm({ ...cargoForm, senderPhone: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rRecN}</label>
-                    <input type="text" required value={cargoForm.receiverName} onChange={(e)=>setCargoForm({...cargoForm, receiverName: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
+                    <input type="text" required value={cargoForm.receiverName} onChange={(e) => setCargoForm({ ...cargoForm, receiverName: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rRecP}</label>
-                    <input type="text" required value={cargoForm.receiverPhone} onChange={(e)=>setCargoForm({...cargoForm, receiverPhone: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
+                    <input type="text" required value={cargoForm.receiverPhone} onChange={(e) => setCargoForm({ ...cargoForm, receiverPhone: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
                   </div>
                 </div>
 
                 <div className="mb-6">
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rDest}</label>
-                  <input type="text" required value={cargoForm.destination} onChange={(e)=>setCargoForm({...cargoForm, destination: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
+                  <input type="text" required value={cargoForm.destination} onChange={(e) => setCargoForm({ ...cargoForm, destination: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
                 </div>
 
                 <div className="mb-6">
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rDesc}</label>
-                  <input type="text" value={cargoForm.description} onChange={(e)=>setCargoForm({...cargoForm, description: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
+                  <input type="text" value={cargoForm.description} onChange={(e) => setCargoForm({ ...cargoForm, description: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rCost}</label>
-                    <input type="number" required value={cargoForm.shippingCost} onChange={(e)=>setCargoForm({...cargoForm, shippingCost: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500 font-bold" />
+                    <input type="number" required value={cargoForm.shippingCost} onChange={(e) => setCargoForm({ ...cargoForm, shippingCost: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500 font-bold" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rVal}</label>
-                    <input type="number" required value={cargoForm.cargoValue} onChange={(e)=>setCargoForm({...cargoForm, cargoValue: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500 font-bold" />
+                    <input type="number" required value={cargoForm.cargoValue} onChange={(e) => setCargoForm({ ...cargoForm, cargoValue: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 outline-none focus:border-blue-500 font-bold" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 p-4 bg-slate-50 border border-slate-100 rounded-xl">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rPayStat}</label>
-                    <select value={cargoForm.paymentStatus} onChange={(e)=>setCargoForm({...cargoForm, paymentStatus: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-white text-slate-900 outline-none focus:border-blue-500 font-bold">
+                    <select value={cargoForm.paymentStatus} onChange={(e) => setCargoForm({ ...cargoForm, paymentStatus: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-white text-slate-900 outline-none focus:border-blue-500 font-bold">
                       <option value="PAID">{t.payPaid}</option>
                       <option value="PAY_ON_DELIVERY">{t.payPod}</option>
                       <option value="CREDIT">{t.payCredit}</option>
@@ -711,7 +736,7 @@ Thank you for choosing GM Cargo
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t.rPayMeth}</label>
-                    <select value={cargoForm.paymentMethod} onChange={(e)=>setCargoForm({...cargoForm, paymentMethod: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl bg-white text-slate-900 outline-none focus:border-blue-500 font-bold" disabled={cargoForm.paymentStatus !== "PAID"}>
+                    <select value={cargoForm.paymentMethod} onChange={(e) => setCargoForm({ ...cargoForm, paymentMethod: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl bg-white text-slate-900 outline-none focus:border-blue-500 font-bold" disabled={cargoForm.paymentStatus !== "PAID"}>
                       <option value="CASH">Cash</option>
                       <option value="M-PESA">M-Pesa</option>
                       <option value="TIGO_PESA">Tigo Pesa</option>
@@ -720,7 +745,7 @@ Thank you for choosing GM Cargo
                   </div>
                   <div className="flex items-center">
                     <label className="flex items-center gap-3 cursor-pointer mt-0 md:mt-6">
-                      <input type="checkbox" checked={cargoForm.sendSms} onChange={(e)=>setCargoForm({...cargoForm, sendSms: e.target.checked})} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                      <input type="checkbox" checked={cargoForm.sendSms} onChange={(e) => setCargoForm({ ...cargoForm, sendSms: e.target.checked })} className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                       <span className="text-sm font-bold text-slate-700">{t.rSms}</span>
                     </label>
                   </div>
@@ -770,11 +795,11 @@ Thank you for choosing GM Cargo
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.fExpDesc}</label>
-                        <input type="text" required value={expenseForm.desc} onChange={(e)=>setExpenseForm({...expenseForm, desc: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" placeholder="Mf. Chai, Umeme..." />
+                        <input type="text" required value={expenseForm.desc} onChange={(e) => setExpenseForm({ ...expenseForm, desc: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" placeholder="Mf. Chai, Umeme..." />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.fExpAmt}</label>
-                        <input type="number" required value={expenseForm.amount} onChange={(e)=>setExpenseForm({...expenseForm, amount: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm font-bold" placeholder="Mf. 5000" />
+                        <input type="number" required value={expenseForm.amount} onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm font-bold" placeholder="Mf. 5000" />
                       </div>
                       <button type="submit" className="w-full bg-slate-900 text-white p-3 rounded-xl font-bold hover:bg-slate-800 mt-2">
                         {t.btnExp}
@@ -826,19 +851,19 @@ Thank you for choosing GM Cargo
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.uName}</label>
-                        <input type="text" required value={userForm.name} onChange={(e)=>setUserForm({...userForm, name: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={userForm.name} onChange={(e) => setUserForm({ ...userForm, name: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.uPhone}</label>
-                        <input type="text" required value={userForm.phone} onChange={(e)=>setUserForm({...userForm, phone: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={userForm.phone} onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.uPass}</label>
-                        <input type="password" required value={userForm.password} onChange={(e)=>setUserForm({...userForm, password: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="password" required value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.uRole}</label>
-                        <select value={userForm.role} onChange={(e)=>setUserForm({...userForm, role: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm font-bold bg-white">
+                        <select value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm font-bold bg-white">
                           <option value="RUNNER">Runner</option>
                           <option value="ADMIN">Admin</option>
                         </select>
@@ -899,19 +924,19 @@ Thank you for choosing GM Cargo
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.thAName}</label>
-                        <input type="text" required value={agentForm.name} onChange={(e)=>setAgentForm({...agentForm, name: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={agentForm.name} onChange={(e) => setAgentForm({ ...agentForm, name: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.aRegion}</label>
-                        <input type="text" required value={agentForm.region} onChange={(e)=>setAgentForm({...agentForm, region: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={agentForm.region} onChange={(e) => setAgentForm({ ...agentForm, region: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.uPhone}</label>
-                        <input type="text" required value={agentForm.phone} onChange={(e)=>setAgentForm({...agentForm, phone: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={agentForm.phone} onChange={(e) => setAgentForm({ ...agentForm, phone: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.aAddress}</label>
-                        <input type="text" required value={agentForm.address} onChange={(e)=>setAgentForm({...agentForm, address: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={agentForm.address} onChange={(e) => setAgentForm({ ...agentForm, address: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 mt-2">
                         {t.btnAgent}
@@ -961,15 +986,15 @@ Thank you for choosing GM Cargo
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.mDriver}</label>
-                        <input type="text" required value={manifestForm.driver} onChange={(e)=>setManifestForm({...manifestForm, driver: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={manifestForm.driver} onChange={(e) => setManifestForm({ ...manifestForm, driver: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.mPlate}</label>
-                        <input type="text" required value={manifestForm.vehicle} onChange={(e)=>setManifestForm({...manifestForm, vehicle: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm font-bold uppercase" />
+                        <input type="text" required value={manifestForm.vehicle} onChange={(e) => setManifestForm({ ...manifestForm, vehicle: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm font-bold uppercase" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t.mRoute}</label>
-                        <input type="text" required value={manifestForm.route} onChange={(e)=>setManifestForm({...manifestForm, route: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
+                        <input type="text" required value={manifestForm.route} onChange={(e) => setManifestForm({ ...manifestForm, route: e.target.value })} className="w-full p-3 border border-slate-200 rounded-xl text-sm" />
                       </div>
                       <button type="submit" className="w-full bg-slate-900 text-white p-3 rounded-xl font-bold hover:bg-slate-800 mt-2">
                         {t.btnMan}
@@ -999,8 +1024,8 @@ Thank you for choosing GM Cargo
                             </td>
                             <td className="p-4 text-sm font-bold text-slate-700">{man.route}</td>
                             <td className="p-4">
-                              <button 
-                                onClick={() => handlePrintManifest(man)} 
+                              <button
+                                onClick={() => handlePrintManifest(man)}
                                 className="bg-blue-50 text-blue-600 px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-100 flex items-center gap-2 border border-blue-200 transition-colors"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -1024,7 +1049,7 @@ Thank you for choosing GM Cargo
               <p className="text-sm md:text-base text-slate-500 mb-8">{t.sSub}</p>
 
               <form onSubmit={handleSaveSettings} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-                
+
                 <h3 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Taarifa za Kichwa cha Risiti (Receipt Header)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
                   <div>
@@ -1045,14 +1070,14 @@ Thank you for choosing GM Cargo
                 <label className="block text-sm font-bold text-slate-700 mb-2">
                   {t.sTerms}
                 </label>
-                <textarea 
+                <textarea
                   rows={4}
                   value={receiptTerms}
                   onChange={(e) => setReceiptTerms(e.target.value)}
                   className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 ></textarea>
                 <p className="text-xs text-slate-400 mt-2 mb-8">{t.sTermsDesc}</p>
-                
+
                 <button type="submit" className="w-full md:w-auto bg-blue-600 text-white px-10 py-3.5 rounded-xl font-black hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
                   {t.btnSave}
                 </button>
