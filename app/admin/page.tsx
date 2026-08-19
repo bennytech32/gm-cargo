@@ -73,7 +73,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden p-4">
       
       {/* MAPAMBO YA NYUMA (Background Design Elements) */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
@@ -99,15 +99,16 @@ export default function LoginPage() {
       </div>
 
       {/* KADI YA LOGIN (Login Card) */}
-      <div className="w-full max-w-md p-8 relative z-10">
-        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 md:p-10">
+      <div className="w-full max-w-md p-2 sm:p-8 relative z-10">
+        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-5 sm:p-8 md:p-10">
           
           {/* LOGO & TITLE */}
-          <div className="flex flex-col items-center mb-10 text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-600/30 transform rotate-3 hover:rotate-0 transition-transform">
-              <PackageSearch size={32} className="text-white" />
+          <div className="flex flex-col items-center mb-6 sm:mb-10 text-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg shadow-blue-600/30 transform rotate-3 hover:rotate-0 transition-transform">
+              <PackageSearch size={24} className="text-white sm:hidden" />
+              <PackageSearch size={32} className="text-white hidden sm:block" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-1 sm:mb-2">
               {t.title}
             </h1>
             <p className="text-sm text-slate-500 font-medium">
@@ -124,7 +125,7 @@ export default function LoginPage() {
           )}
 
           {/* FOMU YA LOGIN */}
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                 {t.phoneLabel}
@@ -139,7 +140,7 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder={t.phonePlace}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -158,7 +159,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.passPlace}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium"
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -166,7 +167,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-600/20 disabled:opacity-70"
+              className="w-full bg-blue-600 text-white py-3 sm:py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-600/20 disabled:opacity-70 text-sm sm:text-base"
             >
               {loading ? (
                 <>

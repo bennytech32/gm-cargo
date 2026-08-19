@@ -129,11 +129,18 @@ export default function Dashboard() {
   const [companyTin, setCompanyTin] = useState("152-356-013");
   const [companyWebsite, setCompanyWebsite] = useState("www.gm-cargo.co.tz");
 
+  // FUNCTION YA KUHAKIKISHA SIDEBAR INAJIFUNGA KILA UNAPO-CLICK MENYU
+  const navigateToTab = (tabName: string) => {
+    setActiveTab(tabName);
+    setIsSidebarOpen(false);
+  };
+
   useEffect(() => {
     const id = localStorage.getItem("admin_id");
     if (!id) {
       router.push("/admin");
     } else {
+      setIsSidebarOpen(false); // Hakikisha sidebar imejifunga ukilogin
       setAdminId(id);
       setAdminName(localStorage.getItem("admin_name") || "Admin");
       fetchWaybills();
@@ -220,7 +227,8 @@ export default function Dashboard() {
       if (res.ok) {
         alert("Safi! Mzigo umesajiliwa kikamilifu. ✅");
         setCargoForm({ senderName: "", senderPhone: "", receiverName: "", receiverPhone: "", destination: "", description: "", shippingCost: "", cargoValue: "", paymentStatus: "PAID", paymentMethod: "CASH", sendSms: true });
-        fetchWaybills(); setActiveTab("dashboard");
+        fetchWaybills();
+        navigateToTab("dashboard");
       } else {
         alert("Imeshindwa kusajili. Hakikisha mtandao upo sawa.");
       }
@@ -274,7 +282,7 @@ export default function Dashboard() {
   if (loading && waybills.length === 0) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-500">Loading system...</div>;
 
   // ============================================================================
-  // VIEWS ZA KU-PRINT (HIZI ZINAONEKANA WAKATI WA KUPRINT TU)
+  // VIEWS ZA KU-PRINT (THERMAL RECEIPT & MANIFEST)
   // ============================================================================
 
   if (printingReceipt) {
@@ -392,25 +400,20 @@ Thank you for choosing GM Cargo
           </div>
         </div>
 
-        {/* CSS MAALUM KWA AJILI YA THERMAL PRINTING ILI BROWSER ISILELTE MAMBO YA PDF */}
         <style dangerouslySetInnerHTML={{
           __html: `
           @media print {
             .no-print { display: none !important; }
-            
-            /* Hii inalazimisha print iwe thermal na kuondoa PDF preview kwenye devices nyingi */
             @page { 
               size: 58mm auto; 
               margin: 0 !important; 
             }
-            
             body, html { 
               background: white !important; 
               margin: 0 !important; 
               padding: 0 !important; 
               width: 58mm !important;
             }
-            
             .print-container { 
                box-shadow: none !important; 
                margin: 0 !important; 
@@ -502,17 +505,19 @@ Thank you for choosing GM Cargo
   }
 
   // ============================================================================
-  // MWISHO WA VIEWS ZA KU-PRINT. CHINI NI DASHBOARD YAKO YA KAWAIDA.
+  // DASHBOARD MAIN UI
   // ============================================================================
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden w-full font-sans selection:bg-blue-200">
 
+      {/* Backdrop overlay ya Mobile na POS Screen */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/60 md:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsSidebarOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/60 xl:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      {/* Sidebar - Inatumia xl: relative ili skrini ndogo za POS/Mobile zisiwe na Sidebar ya kudumu */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-in-out xl:relative xl:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 border-b border-slate-800 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-black">GM</div>
@@ -524,24 +529,24 @@ Thank you for choosing GM Cargo
               <button onClick={() => setLang('en')} className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>EN</button>
               <button onClick={() => setLang('sw')} className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'sw' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>SW</button>
             </div>
-            <button className="md:hidden text-slate-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
+            <button className="xl:hidden text-slate-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
               <IconClose />
             </button>
           </div>
         </div>
 
         <div className="flex-1 py-6 px-4 space-y-2 overflow-y-auto custom-scrollbar">
-          <button onClick={() => { setActiveTab("dashboard"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconHome /> {t.sbDash}</button>
-          <button onClick={() => { setActiveTab("register"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'register' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconBox /> {t.sbReg}</button>
-          <button onClick={() => { setActiveTab("users"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'users' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconUsers /> {t.sbUsers}</button>
-          <button onClick={() => { setActiveTab("agents"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'agents' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconAgents /> {t.sbAgents}</button>
-          <button onClick={() => { setActiveTab("manifest"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'manifest' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconManifest /> {t.sbManifest}</button>
+          <button onClick={() => navigateToTab("dashboard")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconHome /> {t.sbDash}</button>
+          <button onClick={() => navigateToTab("register")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'register' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconBox /> {t.sbReg}</button>
+          <button onClick={() => navigateToTab("users")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'users' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconUsers /> {t.sbUsers}</button>
+          <button onClick={() => navigateToTab("agents")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'agents' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconAgents /> {t.sbAgents}</button>
+          <button onClick={() => navigateToTab("manifest")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'manifest' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconManifest /> {t.sbManifest}</button>
 
           <div className="my-4 border-t border-slate-800/50"></div>
 
-          <button onClick={() => { setActiveTab("finance"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'finance' ? 'bg-green-600 text-white shadow-lg shadow-green-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconWallet /> {t.sbFinance}</button>
+          <button onClick={() => navigateToTab("finance")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'finance' ? 'bg-green-600 text-white shadow-lg shadow-green-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconWallet /> {t.sbFinance}</button>
 
-          <button onClick={() => { setActiveTab("settings"); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconSettings /> {t.sbSettings}</button>
+          <button onClick={() => navigateToTab("settings")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-sm ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><IconSettings /> {t.sbSettings}</button>
         </div>
 
         <div className="p-4 border-t border-slate-800 shrink-0">
@@ -555,7 +560,8 @@ Thank you for choosing GM Cargo
 
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
 
-        <header className="flex items-center justify-between px-4 py-4 bg-white border-b md:hidden shadow-sm shrink-0 z-30">
+        {/* Topbar ya Mobile & POS Machines */}
+        <header className="flex items-center justify-between px-4 py-3 bg-white border-b xl:hidden shadow-sm shrink-0 z-30">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-black text-white text-sm">GM</div>
             <span className="font-bold text-slate-900 tracking-wide">ADMIN</span>
@@ -565,7 +571,7 @@ Thank you for choosing GM Cargo
           </button>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50">
+        <main className="flex-1 p-4 xl:p-8 overflow-y-auto bg-slate-50">
 
           {/* TAB 1: DASHBOARD */}
           {activeTab === "dashboard" && (
