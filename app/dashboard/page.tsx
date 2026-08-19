@@ -343,7 +343,8 @@ Thank you for choosing GM Cargo
         <div id="receipt-content" className="print-container bg-white" style={{ width: '58mm', padding: '2mm', color: '#000', fontFamily: 'monospace', fontSize: '11px', lineHeight: '1.3' }}>
           <div className="text-center">
             ========================<br />
-            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>GM CARGO COMPANY LIMITED</span><br />
+            <span style={{ fontSize: '16px', fontWeight: '900', letterSpacing: '1px', display: 'block', margin: '2px 0' }}>GM CARGO</span>
+            <span style={{ fontSize: '10px', fontWeight: 'bold' }}>COMPANY LIMITED</span><br />
             Reliable • Fast • Secure Logistics<br />
             {companyPhones}<br />
             {companyWebsite}<br />
@@ -351,46 +352,40 @@ Thank you for choosing GM Cargo
             ========================
           </div>
 
-          <div className="text-left mt-2">
+          <div className="text-left" style={{ marginTop: '2px' }}>
             RECEIPT NO: {mzigo.trackingNumber}<br />
             DATE: {new Date(mzigo.createdAt).toLocaleDateString()}<br />
             FROM: DAR ES SALAAM<br />
             TO: {mzigo.destination.toUpperCase()}<br />
-
-            <br />------------------------<br />
+            ------------------------<br />
             SENDER:<br />
             {mzigo.senderName}<br />
             {mzigo.senderPhone}<br />
-
-            <br />------------------------<br />
+            ------------------------<br />
             RECEIVER:<br />
             {mzigo.receiverName}<br />
             {mzigo.receiverPhone}<br />
-
-            <br />------------------------<br />
+            ------------------------<br />
             CARGO DETAILS:<br />
             Item: {mzigo.description || 'Mizigo'}<br />
             Amount: Tsh {mzigo.shippingCost?.toLocaleString() || 0}<br />
             Payment: <span style={{ fontWeight: 'bold' }}>{payStatusLabel} ({payMethodLabel})</span><br />
-
             {agent && (
               <>
-                <br />------------------------<br />
+                ------------------------<br />
                 AGENT ({agent.region.toUpperCase()}):<br />
                 {agent.phone}<br />
                 {agent.name}<br />
               </>
             )}
-
-            <br />------------------------<br />
+            ------------------------<br />
             TERMS:<br />
             {receiptTerms.split('\n').map((line: string, i: number) => <span key={i}>{line}<br /></span>)}
-
-            <br />------------------------<br />
+            ------------------------<br />
           </div>
 
-          <div className="text-center mt-2 flex flex-col items-center">
-            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${mzigo.trackingNumber}`} alt="QR" style={{ width: '80px', height: '80px', margin: '10px 0' }} />
+          <div className="text-center flex flex-col items-center" style={{ marginTop: '2px' }}>
+            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${mzigo.trackingNumber}`} alt="QR" style={{ width: '60px', height: '60px', margin: '4px 0' }} />
             Served by: {runnerName}<br />
             Thank you for choosing GM Cargo<br />
             ========================
